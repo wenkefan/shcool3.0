@@ -15,7 +15,10 @@ import java.io.IOException;
  */
 
 public class UpCarNetWork extends BaseNetWork {
-
+    private NetWorkSelectListener netWorkSelectListener;
+    public void onSetSelectListener(NetWorkSelectListener netWorkSelectListener){
+        this.netWorkSelectListener = netWorkSelectListener;
+    }
     private static Activity mActivity;
 
     public static UpCarNetWork newInstance(Activity activity){
@@ -29,18 +32,24 @@ public class UpCarNetWork extends BaseNetWork {
 
     @Override
     public void onSuccess(Object cla, int flag) {
-        if (flag == Keyword.FLAGUPCAR){
             if (cla != null){
 
                 UpDownCar upDownCar = (UpDownCar) cla;
 
-                listener.NetWorkSuccess(Keyword.FLAGUPCAR);
+                netWorkSelectListener.NetWorkSuccess(Keyword.FLAGUPCAR,flag - Keyword.FLAGUPCAR);
             }
-        }
     }
 
     @Override
     public void onFailure(IOException e) {
-        listener.NetWorkError(Keyword.XiaURL);
+        netWorkSelectListener.NetWorkError(Keyword.XiaURL);
+    }
+
+    public interface NetWorkSelectListener {
+
+        public void NetWorkSuccess(int Flag,int key);
+
+        public void NetWorkError(int Flag);
+
     }
 }

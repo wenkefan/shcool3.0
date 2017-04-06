@@ -23,7 +23,13 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
     private Context context;
     private List<UpAndDownRecordBean> list;
     private int type;
+    private boolean IsSelect = false;//是否显示圆圈选择
+    private boolean Isquanxuan = false;//是否全选
+    private SelectChildListener listener;
 
+    public void onSetSelectChildListener(SelectChildListener listener) {
+        this.listener = listener;
+    }
 
     public ChildRecyAdapter(List<UpAndDownRecordBean> list, int type) {
         this.list = list;
@@ -37,34 +43,45 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
     }
 
     @Override
-    public void onBindViewHolder(ClickableViewHolder holder, int position) {
+    public void onBindViewHolder(ClickableViewHolder holder, final int position) {
         if (holder instanceof ChildViewHolde) {
-            ChildViewHolde holde = (ChildViewHolde) holder;
+            final ChildViewHolde holde = (ChildViewHolde) holder;
+            final boolean[] selectadapter = {false};//对单个的选择
             holde.tv.setText(list.get(position).getChildName());
-//            switch (list.get(position).getIsShang()) {
-//                case 0:
-//                    holde.iv.setBackgroundResource(R.mipmap.bianji);
-//                    break;
-//                case 1:
-//                    holde.iv.setBackgroundResource(R.mipmap.shangche);
-//                    break;
-//                case 2:
-//                    holde.iv.setBackgroundResource(R.mipmap.bingjia);
-//                    break;
-//                case 3:
-//                    holde.iv.setBackgroundResource(R.mipmap.shijia);
-//                    break;
-//                case 4:
-//                    holde.iv.setBackgroundResource(R.mipmap.jiazhangjiesong);
-//                    break;
-//                case 5:
-//                    holde.iv.setBackgroundResource(R.mipmap.xiache);
-//                    break;
-//            }
-            if (type == 1){
+            if (type == 1) {
                 holde.iv.setBackgroundResource(R.mipmap.shangche);
-            } else if (type == 2){
+            } else if (type == 2) {
                 holde.iv.setBackgroundResource(R.mipmap.xiache);
+            }
+            if (type == 3) {
+                if (IsSelect) {
+                    if (Isquanxuan){
+                        holde.xuanze.setImageResource(R.mipmap.xuanzhong);
+                        selectadapter[0] = true;
+                            listener.selectchildListener(position,true);
+                    } else {
+                        holde.xuanze.setImageResource(R.mipmap.yuanquan);
+                        selectadapter[0] = false;
+                            listener.selectchildListener(position,false);
+                    }
+                    holde.xuanze.setVisibility(View.VISIBLE);
+                    holde.xuanze.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (selectadapter[0]) {
+                                holde.xuanze.setImageResource(R.mipmap.yuanquan);
+                                selectadapter[0] = false;
+                            listener.selectchildListener(position,false);
+                            } else {
+                                holde.xuanze.setImageResource(R.mipmap.xuanzhong);
+                                selectadapter[0] = true;
+                            listener.selectchildListener(position,true);
+                            }
+                        }
+                    });
+                } else {
+                    holde.xuanze.setVisibility(View.GONE);
+                }
             }
         }
         super.onBindViewHolder(holder, position);
@@ -78,17 +95,30 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
     public class ChildViewHolde extends ClickableViewHolder {
 
         private TextView tv;
-        private ImageView iv;
+        private ImageView iv, xuanze;
 
         public ChildViewHolde(View itemView) {
             super(itemView);
             tv = $(R.id.tv_child_name);
             iv = $(R.id.iv_type_select);
+            xuanze = $(R.id.iv_xuanxiang);
         }
     }
 
-    public void getDate(List<UpAndDownRecordBean> list){
+    public void getDate(List<UpAndDownRecordBean> list) {
         this.list = list;
         notifyDataSetChanged();
+    }
+
+    public void setSelect(boolean isSelect) {
+        this.IsSelect = isSelect;
+        notifyDataSetChanged();
+    }
+    public void IsQuanxuan(boolean isquanxuan){
+        this.Isquanxuan = isquanxuan;
+        notifyDataSetChanged();
+    }
+    public interface SelectChildListener {
+        void selectchildListener(int position, boolean isSelect);
     }
 }

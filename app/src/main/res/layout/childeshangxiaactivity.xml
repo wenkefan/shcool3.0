@@ -52,12 +52,14 @@
                             android:text="上车"
                             android:textColor="@color/black"
                             android:textSize="20dp" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:text="请刷卡"
-                            android:textColor="@color/transparent_black"/>
+                            android:textColor="@color/transparent_black" />
+
                         <Button
                             android:id="@+id/select_child"
                             android:layout_width="25dp"
@@ -113,7 +115,7 @@
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:text="请刷卡"
-                            android:textColor="@color/transparent_black"/>
+                            android:textColor="@color/transparent_black" />
                     </RelativeLayout>
 
                     <android.support.v7.widget.RecyclerView
@@ -152,17 +154,57 @@
                             android:layout_marginLeft="10dp"
                             android:drawableLeft="@mipmap/station"
                             android:drawablePadding="5dp"
-                            android:text="当前车上幼儿"
+                            android:text="车上幼儿"
                             android:textColor="@color/black"
                             android:textSize="20dp" />
 
-                        <ImageView
+                        <Button
+                            android:id="@+id/btn_queding"
+                            android:layout_width="80dp"
+                            android:layout_height="25dp"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="10dp"
+                            android:layout_toLeftOf="@+id/tv_quanxuan"
+                            android:background="@drawable/facheshapeoff"
+                            android:text="确定下车"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tv_quanxuan"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
-                            android:layout_marginRight="@dimen/margin_larger"
-                            android:background="@mipmap/ic_edit_children"
-                            android:contentDescription="@null" />
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="10dp"
+                            android:clickable="true"
+                            android:drawableLeft="@mipmap/yuanquan"
+                            android:drawablePadding="5dp"
+                            android:gravity="center"
+                            android:text="全选"
+                            android:textSize="18sp"
+                            android:visibility="gone" />
+
+                        <Button
+                            android:id="@+id/btn_qiliangxuanze"
+                            android:layout_width="80dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="10dp"
+                            android:background="@drawable/facheshapeoff"
+                            android:text="批量选择"
+                            android:textColor="@color/white"
+                            android:textSize="15sp"
+                            android:visibility="visible" />
+                        <!--<ImageView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_alignParentRight="true"-->
+                        <!--android:layout_marginRight="@dimen/margin_larger"-->
+                        <!--android:background="@mipmap/ic_edit_children"-->
+                        <!--android:contentDescription="@null" />-->
                     </RelativeLayout>
 
                     <android.support.v7.widget.RecyclerView

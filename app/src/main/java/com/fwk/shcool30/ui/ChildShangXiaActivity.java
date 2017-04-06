@@ -3,9 +3,11 @@ package com.fwk.shcool30.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.fwk.shcool30.R;
@@ -25,6 +27,7 @@ import com.fwk.shcool30.network.api.CarFCNetWork;
 import com.fwk.shcool30.network.api.DownCarNetWork;
 import com.fwk.shcool30.network.api.UpCarNetWork;
 import com.fwk.shcool30.sp.SpLogin;
+import com.fwk.shcool30.ui.adapter.BaseRecyclerAdapter;
 import com.fwk.shcool30.ui.adapter.ChildRecyAdapter;
 import com.fwk.shcool30.util.GetDateTime;
 import com.fwk.shcool30.util.LogUtils;
@@ -32,7 +35,10 @@ import com.fwk.shcool30.util.SharedPreferencesUtils;
 import com.fwk.shcool30.util.ToastUtil;
 import com.fwk.shcool30.weight.MainDialog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -41,7 +47,7 @@ import butterknife.OnClick;
  * Created by fanwenke on 2017/4/5.
  */
 
-public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkListener, FacheListener {
+public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkListener, FacheListener, ChildRecyAdapter.SelectChildListener, UpCarNetWork.NetWorkSelectListener, BaseRecyclerAdapter.OnItemListener {
 
     @BindView(R.id.rv_recyle_shang)
     RecyclerView shangRecycler;
@@ -55,12 +61,23 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     @BindView(R.id.title_tv)
     TextView title;
 
+    @BindView(R.id.btn_queding)
+    Button queding;
+
+    @BindView(R.id.btn_qiliangxuanze)
+    Button qlxz;
+
+    @BindView(R.id.tv_quanxuan)
+    TextView quanxuan;
+
     private SharedPreferencesUtils sp;
     private ChildRecyAdapter adapter1;
     private ChildRecyAdapter adapter2;
     private ChildRecyAdapter adapter3;
     private UpAndDownRecordData data;
     private StationBean.RerurnValueBean stationBean;
+    private boolean IsQuanxuan = false;
+    private boolean IsSKXZ = false;//下车是刷卡还是选择
 
     @Override
     public int getLayoutId() {
@@ -87,7 +104,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             shangRecycler.setHasFixedSize(true);
             shangRecycler.setLayoutManager(linearLayoutManager);
-            adapter1 = new ChildRecyAdapter(list,1);
+            adapter1 = new ChildRecyAdapter(list, 1);
             shangRecycler.setAdapter(adapter1);
         }
 
@@ -101,7 +118,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             xiaRecycler.setHasFixedSize(true);
             xiaRecycler.setLayoutManager(linearLayoutManager);
-            adapter2 = new ChildRecyAdapter(list,2);
+            adapter2 = new ChildRecyAdapter(list, 2);
             xiaRecycler.setAdapter(adapter2);
         }
     }
@@ -114,8 +131,9 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             childRecycler.setHasFixedSize(true);
             childRecycler.setLayoutManager(linearLayoutManager);
-            adapter3 = new ChildRecyAdapter(list,3);
+            adapter3 = new ChildRecyAdapter(list, 3);
             childRecycler.setAdapter(adapter3);
+            adapter3.setOnItemListener(this);
         }
     }
 
@@ -139,13 +157,14 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
 
     private String CarId;
     private UpAndDownRecordBean selectBean;
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         CarId = readICCardNo(intent);
 
-        selectBean =data.queryToUpCar(sp.getInt(Keyword.BusOrderId), CarId);
-        if (selectBean != null){
+        selectBean = data.queryToUpCar(sp.getInt(Keyword.BusOrderId), CarId);
+        if (selectBean != null) {
             ToastUtil.show(selectBean.getChildName() + "已经下车");
             return;
         }
@@ -155,7 +174,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
             if (selectBean.getShang() == stationBean.getStationId()) {
                 //显示是否下车
                 MainDialog.setBackListener(this);
-                MainDialog.Dangzhanshangxiache(this,selectBean.getChildName());
+                MainDialog.Dangzhanshangxiache(this, selectBean.getChildName());
                 return;
             } else {
                 //下车
@@ -173,8 +192,9 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                         2);
                 LogUtils.d("下车接口-----：" + url);
                 UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
-                upCarNetWork.setNetWorkListener(this);
+                upCarNetWork.onSetSelectListener(this);
                 upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
+                IsSKXZ = false;
                 return;
             }
         }
@@ -203,13 +223,104 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
         }
     }
 
-    @OnClick(R.id.btn_fache)
+    private List<UpAndDownRecordBean> selectChildlist;
+
+    @OnClick({R.id.btn_fache, R.id.select_child, R.id.btn_queding, R.id.btn_qiliangxuanze, R.id.tv_quanxuan})
     public void OnClick(View view) {
-        String url = String.format(HTTPURL.API_PROCESS, SpLogin.getKgId(), stationBean.getStationId(), sp.getInt(Keyword.BusOrderId), 2, GetDateTime.getdatetime());
-        LogUtils.d("到站URL：" + url);
-        CarFCNetWork carFCNetWork = CarFCNetWork.newInstance(this);
-        carFCNetWork.setNetWorkListener(this);
-        carFCNetWork.setUrl(Keyword.FLAGFACHE, url, StationFADAOBean.class);
+        switch (view.getId()) {
+            case R.id.btn_fache:
+                String url = String.format(HTTPURL.API_PROCESS, SpLogin.getKgId(), stationBean.getStationId(), sp.getInt(Keyword.BusOrderId), 2, GetDateTime.getdatetime());
+                LogUtils.d("到站URL：" + url);
+                CarFCNetWork carFCNetWork = CarFCNetWork.newInstance(this);
+                carFCNetWork.setNetWorkListener(this);
+                carFCNetWork.setUrl(Keyword.FLAGFACHE, url, StationFADAOBean.class);
+                break;
+            case R.id.select_child:
+                AttendanceUserData attendanceUserData = new AttendanceUserData(this);
+                List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
+                final String[] clasList = new String[clazList.size()];
+                for (int i = 0; i < clazList.size(); i++) {
+                    LogUtils.d((int) clazList.get(i) + "");
+                    clasList[i] = clazList.get(i) + "";
+                }
+                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                dialog.setTitle("请选择班级");
+                dialog.setIcon(R.mipmap.classicon);
+                dialog.setItems(clasList, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ToastUtil.show("选择了" + clasList[which]);
+                        Intent intent = new Intent(ChildShangXiaActivity.this, SelectClasChildActivity.class);
+                        intent.putExtra("selectclass", clasList[which]);
+                        intent.putExtra("stationid", stationBean.getStationId());
+                        startActivity(intent);
+                    }
+                });
+                dialog.create();
+                dialog.show();
+                break;
+            case R.id.btn_queding:
+                List<Integer> itme = new ArrayList<>();
+                for (String key : map.keySet()) {
+                    if (map.get(key).equals("yes")) {
+                        itme.add(Integer.valueOf(key));
+                    }
+                }
+                selectChildlist = getCardList();
+                for (Integer key : itme) {
+
+                    /**
+                     * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
+                     */
+                    String url1 = String.format(
+                            HTTPURL.API_STUDENT_OPEN_DOWN,
+                            sp.getInt(Keyword.BusOrderId),
+                            selectChildlist.get(key).getChildId(),
+                            stationBean.getStationId(),
+                            GetDateTime.getdatetime(),
+                            1,
+                            SpLogin.getKgId(),
+                            2);
+                    LogUtils.d("下车接口-----：" + url1);
+                    UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
+                    upCarNetWork.onSetSelectListener(ChildShangXiaActivity.this);
+                    upCarNetWork.setUrl(Keyword.FLAGUPCAR + key, url1, UpDownCar.class);
+                    IsSKXZ = true;
+                    ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
+                    data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(key).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
+                }
+                adapter2.getDate(getStationList("Xia"));
+                adapter3.getDate(getCardList());
+                qlxz.setVisibility(View.VISIBLE);
+                quanxuan.setVisibility(View.GONE);
+                queding.setVisibility(View.GONE);
+                adapter3.setSelect(false);
+                adapter3.setOnItemListener(this);
+                break;
+            case R.id.btn_qiliangxuanze:
+                qlxz.setVisibility(View.GONE);
+                quanxuan.setVisibility(View.VISIBLE);
+                queding.setVisibility(View.VISIBLE);
+                adapter3.setSelect(true);
+                adapter3.onSetSelectChildListener(this);
+                adapter3.setOnItemListener(null);
+                break;
+            case R.id.tv_quanxuan:
+                if (IsQuanxuan) {
+                    Drawable nav_up = getResources().getDrawable(R.mipmap.yuanquan);
+                    nav_up.setBounds(0, 0, nav_up.getMinimumWidth(), nav_up.getMinimumHeight());
+                    quanxuan.setCompoundDrawables(nav_up, null, null, null);
+                    IsQuanxuan = false;
+                    adapter3.IsQuanxuan(false);
+                } else {
+                    Drawable nav_up = getResources().getDrawable(R.mipmap.xuanzhong);
+                    nav_up.setBounds(0, 0, nav_up.getMinimumWidth(), nav_up.getMinimumHeight());
+                    quanxuan.setCompoundDrawables(nav_up, null, null, null);
+                    IsQuanxuan = true;
+                    adapter3.IsQuanxuan(true);
+                }
+                break;
+        }
     }
 
     @Override
@@ -244,11 +355,26 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 adapter3.getDate(getCardList());
                 break;
             case Keyword.FLAGUPCAR://下车
-                ToastUtil.show(selectBean.getChildName() + "下车");
-                data.updateXia(stationBean.getStationId(),1,1,CarId,sp.getInt(Keyword.BusOrderId),1);
-                adapter2.getDate(getStationList("Xia"));
-                adapter3.getDate(getCardList());
+//                ToastUtil.show(selectBean.getChildName() + "下车");
+//                data.updateXia(stationBean.getStationId(), 1, 1, CarId, sp.getInt(Keyword.BusOrderId), 1);
+//                adapter2.getDate(getStationList("Xia"));
+//                adapter3.getDate(getCardList());
                 break;
+        }
+    }
+
+    @Override
+    public void NetWorkSuccess(int Flag, int key) {
+        if (IsSKXZ) {
+//            ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
+            data.updateXia(stationBean.getStationId(), 1, 1, selectChildlist.get(key).getSACardNo(), sp.getInt(Keyword.BusOrderId), 1);
+            adapter2.getDate(getStationList("Xia"));
+            adapter3.getDate(getCardList());
+        } else {
+            ToastUtil.show(selectBean.getChildName() + "下车");
+            data.updateXia(stationBean.getStationId(), 1, 1, CarId, sp.getInt(Keyword.BusOrderId), 1);
+            adapter2.getDate(getStationList("Xia"));
+            adapter3.getDate(getCardList());
         }
     }
 
@@ -284,10 +410,14 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 adapter3.getDate(getCardList());
                 break;
             case Keyword.FLAGUPCAR://下车
-                ToastUtil.show(selectBean.getChildName() + "下车");
-                data.updateXia(stationBean.getStationId(),1,0,CarId,sp.getInt(Keyword.BusOrderId),1);
-                adapter2.getDate(getStationList("Xia"));
-                adapter3.getDate(getCardList());
+                if (IsSKXZ) {
+
+                } else {
+                    ToastUtil.show(selectBean.getChildName() + "下车");
+                    data.updateXia(stationBean.getStationId(), 1, 0, CarId, sp.getInt(Keyword.BusOrderId), 1);
+                    adapter2.getDate(getStationList("Xia"));
+                    adapter3.getDate(getCardList());
+                }
                 break;
         }
     }
@@ -309,42 +439,75 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 2);
         LogUtils.d("下车接口-----：" + url);
         UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
-        upCarNetWork.setNetWorkListener(this);
+        upCarNetWork.onSetSelectListener(this);
         upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
-    }
-    @OnClick(R.id.select_child)
-    public void onClick(View view){
-        AttendanceUserData attendanceUserData = new AttendanceUserData(this);
-        List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
-        final String[] clasList = new String[clazList.size()];
-        for (int i = 0; i < clazList.size(); i++){
-            LogUtils.d((int)clazList.get(i) + "");
-            clasList[i] = clazList.get(i) + "";
-        }
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("请选择班级");
-        dialog.setIcon(R.mipmap.classicon);
-        dialog.setItems(clasList, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ToastUtil.show("选择了" + clasList[which]);
-                Intent intent = new Intent(ChildShangXiaActivity.this,SelectClasChildActivity.class);
-                intent.putExtra("selectclass",clasList[which]);
-                intent.putExtra("stationid",stationBean.getStationId());
-                startActivity(intent);
-            }
-        });
-        dialog.create();
-        dialog.show();
+        IsSKXZ = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (adapter1 != null && adapter2 != null && adapter3 != null){
+        if (adapter1 != null && adapter2 != null && adapter3 != null) {
             adapter1.getDate(getStationList("Shang"));
             adapter2.getDate(getStationList("Xia"));
             adapter3.getDate(getCardList());
         }
+    }
+
+    private Map<String, String> map = new HashMap<>();
+
+    @Override
+    public void selectchildListener(int position, boolean isSelect) {
+        String key = position + "";
+        String value;
+        if (isSelect) {
+            value = "yes";
+        } else {
+            value = "no";
+        }
+        map.put(key, value);
+    }
+
+    @Override
+    public void setOnItemListener(final int position, BaseRecyclerAdapter.ClickableViewHolder holder) {
+        selectChildlist = getCardList();
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setCancelable(false);
+        builder.setTitle("提示：").setMessage(selectChildlist.get(position).getChildName() + "确定下车？");
+        builder.setNegativeButton("下车", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                /**
+                 * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
+                 */
+                String url = String.format(
+                        HTTPURL.API_STUDENT_OPEN_DOWN,
+                        sp.getInt(Keyword.BusOrderId),
+                        selectChildlist.get(position).getChildId(),
+                        stationBean.getStationId(),
+                        GetDateTime.getdatetime(),
+                        1,
+                        SpLogin.getKgId(),
+                        2);
+                LogUtils.d("下车接口-----：" + url);
+                UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(ChildShangXiaActivity.this);
+                upCarNetWork.onSetSelectListener(ChildShangXiaActivity.this);
+                upCarNetWork.setUrl(Keyword.FLAGUPCAR + position, url, UpDownCar.class);
+                IsSKXZ = true;
+                ToastUtil.show(selectChildlist.get(position).getChildName() + "下车");
+                data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(position).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
+                adapter2.getDate(getStationList("Xia"));
+                adapter3.getDate(getCardList());
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                dialogInterface.dismiss();
+            }
+        });
+        builder.show();
     }
 }
