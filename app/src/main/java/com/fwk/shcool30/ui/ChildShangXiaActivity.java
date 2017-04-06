@@ -1,5 +1,7 @@
 package com.fwk.shcool30.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -309,5 +311,40 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
         UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
         upCarNetWork.setNetWorkListener(this);
         upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
+    }
+    @OnClick(R.id.select_child)
+    public void onClick(View view){
+        AttendanceUserData attendanceUserData = new AttendanceUserData(this);
+        List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
+        final String[] clasList = new String[clazList.size()];
+        for (int i = 0; i < clazList.size(); i++){
+            LogUtils.d((int)clazList.get(i) + "");
+            clasList[i] = clazList.get(i) + "";
+        }
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("请选择班级");
+        dialog.setIcon(R.mipmap.classicon);
+        dialog.setItems(clasList, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ToastUtil.show("选择了" + clasList[which]);
+                Intent intent = new Intent(ChildShangXiaActivity.this,SelectClasChildActivity.class);
+                intent.putExtra("selectclass",clasList[which]);
+                intent.putExtra("stationid",stationBean.getStationId());
+                startActivity(intent);
+            }
+        });
+        dialog.create();
+        dialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter1 != null && adapter2 != null && adapter3 != null){
+            adapter1.getDate(getStationList("Shang"));
+            adapter2.getDate(getStationList("Xia"));
+            adapter3.getDate(getCardList());
+        }
     }
 }

@@ -24,6 +24,7 @@
         <activity android:name=".ui.MainActivity"/>
         <activity android:name=".ui.StaionActivity"/>
         <activity android:name=".ui.ChildShangXiaActivity"/>
+        <activity android:name=".ui.SelectClasChildActivity"/>
     </application>
 
 </manifest>

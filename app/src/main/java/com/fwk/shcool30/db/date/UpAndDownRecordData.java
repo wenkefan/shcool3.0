@@ -214,4 +214,19 @@ public class UpAndDownRecordData {
         db.close();
         return null;
     }
+
+    //查看是否已经上车
+    public boolean queryShangche(int kgid,int BusorderId,int childId){
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from UpAndDownRecordBean where KgId = ? and BusOrderId = ? and ChildId = ? and IsShang = ?",
+                new String[]{String.valueOf(kgid),String.valueOf(BusorderId), String.valueOf(childId), String.valueOf(1)});
+        if (cursor != null) {
+            if (cursor.moveToNext()) {
+                return true;
+            }
+        }
+        cursor.close();
+        db.close();
+        return false;
+    }
 }
