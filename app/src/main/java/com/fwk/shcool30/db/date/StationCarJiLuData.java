@@ -115,4 +115,19 @@ public class StationCarJiLuData {
         db.close();
         return null;
     }
+    //获取记录站点数
+    public int queryCount(){
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from StationCarJiLu",null);
+        if (cursor != null){
+            return cursor.getCount();
+        }
+        return 0;
+    }
+
+    public void dele(){
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        db.execSQL("delete  from StationCarJiLu");
+        db.close();
+    }
 }

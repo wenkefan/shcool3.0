@@ -229,4 +229,11 @@ public class UpAndDownRecordData {
         db.close();
         return false;
     }
+    //删除表
+    public void dele(){
+
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        db.execSQL("delete  from UpAndDownRecordBean");
+        db.close();
+    }
 }

@@ -1,5 +1,6 @@
 package com.fwk.shcool30.ui;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,10 +15,12 @@ import com.fwk.shcool30.R;
 import com.fwk.shcool30.constanat.Keyword;
 import com.fwk.shcool30.db.date.AttendanceUserData;
 import com.fwk.shcool30.db.date.StationCarJiLuData;
+import com.fwk.shcool30.db.date.TeacherZT;
 import com.fwk.shcool30.db.date.UpAndDownRecordData;
 import com.fwk.shcool30.listener.FacheListener;
 import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.AttendanceUserBean;
+import com.fwk.shcool30.modue.FristFaChe;
 import com.fwk.shcool30.modue.StationBean;
 import com.fwk.shcool30.modue.StationFADAOBean;
 import com.fwk.shcool30.modue.UpAndDownRecordBean;
@@ -25,6 +28,7 @@ import com.fwk.shcool30.modue.UpDownCar;
 import com.fwk.shcool30.network.HTTPURL;
 import com.fwk.shcool30.network.api.CarFCNetWork;
 import com.fwk.shcool30.network.api.DownCarNetWork;
+import com.fwk.shcool30.network.api.FristNetWork;
 import com.fwk.shcool30.network.api.UpCarNetWork;
 import com.fwk.shcool30.sp.SpLogin;
 import com.fwk.shcool30.ui.adapter.BaseRecyclerAdapter;
@@ -70,6 +74,9 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     @BindView(R.id.tv_quanxuan)
     TextView quanxuan;
 
+    @BindView(R.id.btn_fache)
+    Button fache;
+
     private SharedPreferencesUtils sp;
     private ChildRecyAdapter adapter1;
     private ChildRecyAdapter adapter2;
@@ -78,6 +85,9 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     private StationBean.RerurnValueBean stationBean;
     private boolean IsQuanxuan = false;
     private boolean IsSKXZ = false;//下车是刷卡还是选择
+    private int stationCount;//站点的个数
+    private int dangqianstationCount;
+    private StationCarJiLuData stationCarJiLuData = new StationCarJiLuData(this);
 
     @Override
     public int getLayoutId() {
@@ -87,10 +97,15 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     @Override
     protected void init() {
         sp = new SharedPreferencesUtils();
+        stationCount = ((List<StationBean.RerurnValueBean>)sp.queryForSharedToObject(Keyword.STAIDLIST)).size();
         data = new UpAndDownRecordData(this);
         Intent intent = getIntent();
         stationBean = (StationBean.RerurnValueBean) intent.getSerializableExtra(Keyword.SELECTSTA);
         title.setText(stationBean.getStationName());
+        dangqianstationCount = stationCarJiLuData.queryCount();
+        if (stationCount == dangqianstationCount){
+            fache.setText("结束");
+        }
         setShangRecycler();
         setXiaRecycler();
         setChildRecycler();
@@ -229,11 +244,32 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     public void OnClick(View view) {
         switch (view.getId()) {
             case R.id.btn_fache:
-                String url = String.format(HTTPURL.API_PROCESS, SpLogin.getKgId(), stationBean.getStationId(), sp.getInt(Keyword.BusOrderId), 2, GetDateTime.getdatetime());
-                LogUtils.d("到站URL：" + url);
-                CarFCNetWork carFCNetWork = CarFCNetWork.newInstance(this);
-                carFCNetWork.setNetWorkListener(this);
-                carFCNetWork.setUrl(Keyword.FLAGFACHE, url, StationFADAOBean.class);
+                if (dangqianstationCount == stationCount){
+                    //最后一站 要结束
+                    int number = data.queryCarList(sp.getInt(Keyword.BusOrderId),1,0).size();
+                    if (number == 0) {
+                        /**
+                         * 发车字段为：班次编号、kgid、发车时间、类型(1发车、2停车)
+                         * 停车字段为：派车单号、kgid、发车时间、类型(1发车、2停车)
+                         */
+                        String url = String.format(HTTPURL.API_OPEN, sp.getInt(Keyword.BusOrderId), SpLogin.getKgId(), GetDateTime.getdatetime(),
+                                2, SpLogin.getWorkerExtensionId());
+                        LogUtils.d("结束接口:" + url);
+                        FristNetWork fristNetWork = FristNetWork.newInstance(this);
+                        fristNetWork.setNetWorkListener(this);
+                        fristNetWork.setUrl(Keyword.FLAGFIRSTFACHE, url, FristFaChe.class);
+                    } else {
+                        ToastUtil.show("还有幼儿没有下车，请查看！");
+                        return;
+                    }
+
+                } else {
+                    String url = String.format(HTTPURL.API_PROCESS, SpLogin.getKgId(), stationBean.getStationId(), sp.getInt(Keyword.BusOrderId), 2, GetDateTime.getdatetime());
+                    LogUtils.d("到站URL：" + url);
+                    CarFCNetWork carFCNetWork = CarFCNetWork.newInstance(this);
+                    carFCNetWork.setNetWorkListener(this);
+                    carFCNetWork.setUrl(Keyword.FLAGFACHE, url, StationFADAOBean.class);
+                }
                 break;
             case R.id.select_child:
                 AttendanceUserData attendanceUserData = new AttendanceUserData(this);
@@ -359,6 +395,16 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
 //                data.updateXia(stationBean.getStationId(), 1, 1, CarId, sp.getInt(Keyword.BusOrderId), 1);
 //                adapter2.getDate(getStationList("Xia"));
 //                adapter3.getDate(getCardList());
+                break;
+            case Keyword.FLAGFIRSTFACHE:
+                sp.removData();
+//                data.dele();
+                stationCarJiLuData.dele();
+                TeacherZT teacherZT = new TeacherZT(this);
+                teacherZT.dele();
+                StaionActivity.stationActivity.finish();
+                startActivity(new Intent(this,MainActivity.class));
+                finish();
                 break;
         }
     }

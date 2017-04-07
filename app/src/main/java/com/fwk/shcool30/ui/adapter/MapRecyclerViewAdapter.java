@@ -1,6 +1,7 @@
 package com.fwk.shcool30.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.CardView;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -34,17 +35,10 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
     private Context mContext;
     private SharedPreferencesUtils sp;
     private List<StationBean.RerurnValueBean> list;
-    private Map<String, List<StaBean>> map;
     private DisplayMetrics display;
-    private int stationPosition;
-    private List<String> times;
 
     DaoZhanListener listener;
 
-    private int shangcheNumber = 0;
-    private int xiacheNumber = 0;
-    private Map<Integer, Integer> shangche;
-    private Map<Integer, Integer> xiache;
     private List<StationCarJiLuBean> stationCarJiLuBeen;
 
     public void setOnClickListener(DaoZhanListener listener) {
@@ -97,26 +91,8 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
             }
 
             if (position < (stationCarJiLuBeen == null ? 0 : stationCarJiLuBeen.size())) {
-//                int shangcheN = 0;
-//                try {
-//                    shangcheN = shangche.get(list.get(position).getStationId());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                int xiacheN = 0;
-//                try {
-//                    xiacheN = xiache.get(list.get(position).getStationId());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                String str1 = String.format(mContext.getString(R.string.station_shangcherenshu), shangcheN, getShangChenumber(list.get(position).getStationId()));
-//                String str2 = String.format(mContext.getString(R.string.station_xiacherenshu), xiacheN, getXiaCheNumber(list.get(position).getStationId()));
-//                viewHolder.ysc.setText(str1);
-//                viewHolder.yxc.setText(str2);
                 viewHolder.ring.setImageResource(R.drawable.ring2);
                 viewHolder.start.setBackgroundColor(0xff669900);
-                viewHolder.ysc.setVisibility(View.VISIBLE);
-                viewHolder.yxc.setVisibility(View.VISIBLE);
             }
             if (stationCarJiLuBeen != null) {
                 try {
@@ -126,10 +102,14 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
                         viewHolder.end.setBackgroundColor(0xff669900);
                         viewHolder.sjsj.setVisibility(View.VISIBLE);
                         viewHolder.sjsj.setText(stationCarJiLuBeen.get(position).getDatatime());
+                        viewHolder.xiangqing.setVisibility(View.VISIBLE);
+                        viewHolder.xiangqing.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+                        viewHolder.xiangqing.getPaint().setAntiAlias(true);//抗锯齿
                     } else if (position == stationCarJiLuBeen.size() - 1) {
                         if (stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1).getIsFache() == 0) {
                             viewHolder.daozhan.setVisibility(View.VISIBLE);
                             viewHolder.daozhan.setText("已到站");
+                            viewHolder.ring.setAnimation(set);
                         } else {
                             viewHolder.daozhan.setVisibility(View.GONE);
                             viewHolder.end.setBackgroundColor(0xff669900);
@@ -139,7 +119,6 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
                     } else if (position == stationCarJiLuBeen.size()) {
                         if (stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1).getIsFache() == 1) {
                             viewHolder.daozhan.setVisibility(View.VISIBLE);
-                            viewHolder.ring.setAnimation(set);
                         }
                     }
                 } catch (Exception e) {
@@ -159,8 +138,8 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
     @Override
     public void onClick(View view) {
         int position = 0;
-        if (stationCarJiLuBeen != null){
-            if (stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1).getIsFache() == 0){
+        if (stationCarJiLuBeen != null) {
+            if (stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1).getIsFache() == 0) {
                 position = stationCarJiLuBeen.size() - 1;
             } else {
                 position = stationCarJiLuBeen.size();
@@ -173,7 +152,7 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
 
         private View start, end;
         private ImageView ring;
-        private TextView name, ysc, yxc, sjsj;
+        private TextView name, ysc, yxc, sjsj, xiangqing;
         private CardView cardView;
         private RelativeLayout left;
         private TextView daozhan;
@@ -188,9 +167,8 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
             left = $(R.id.rl_left);
             daozhan = $(R.id.btn_daozhan);
 
-            ysc = $(R.id.tv_shangcherenshu);
-            yxc = $(R.id.tv_xiacherenshu);
             sjsj = $(R.id.tv_sjsj);
+            xiangqing = $(R.id.tv_xiangqing);
         }
 
     }

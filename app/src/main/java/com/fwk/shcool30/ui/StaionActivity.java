@@ -1,13 +1,17 @@
 package com.fwk.shcool30.ui;
 
 import android.content.Intent;
+import android.graphics.Paint;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.TextView;
 
 import com.fwk.shcool30.R;
 import com.fwk.shcool30.constanat.Keyword;
 import com.fwk.shcool30.db.date.StationCarJiLuData;
+import com.fwk.shcool30.db.date.UpAndDownRecordData;
 import com.fwk.shcool30.listener.DaoZhanListener;
 import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.BanciBean;
@@ -30,6 +34,7 @@ import com.fwk.shcool30.util.ToastUtil;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 /**
  * Created by fanwenke on 2017/3/31.
@@ -39,6 +44,14 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
 
     @BindView(R.id.station_map_recycler)
     RecyclerView mRecyclerView;
+
+    @BindView(R.id.tv_count)
+    TextView count;
+
+    @BindView(R.id.tv_chakan)
+    TextView chakan;
+
+    public static StaionActivity stationActivity = null;
 
     private int FCleixing;//接／送孩子类型
     private SharedPreferencesUtils sp;
@@ -62,6 +75,7 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
 
     @Override
     protected void init() {
+        stationActivity = this;
         sp = new SharedPreferencesUtils();
         banciBean = (BanciBean.RerurnValueBean) getIntent().getSerializableExtra(Keyword.IntentBanCi0);
         teacherBean = (TeacherZTBean.RerurnValueBean) getIntent().getSerializableExtra(Keyword.IntentBanCi1);
@@ -78,6 +92,8 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 getStationJiLu();
             }
         }
+        chakan.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+        chakan.getPaint().setAntiAlias(true);//抗锯齿
     }
 
     private void getStationJiLu() {
@@ -143,7 +159,6 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
         switch (Flag){
             case Keyword.FLAGDAOZHANERROR:
                 StationCarJiLuData sta = new StationCarJiLuData(this);
-                LogUtils.d("新添一站点");
                 sta.add(sp.getInt(Keyword.BusOrderId), bean, GetDateTime.getH() + ":" + GetDateTime.getM(), 0);
                 adapter.getList(sta.queryJiLu(sp.getInt(Keyword.BusOrderId)));
                 Intent intent = new Intent(StaionActivity.this, ChildShangXiaActivity.class);
@@ -163,7 +178,6 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
     public void OnClickListener(int position) {
         bean = stationBean.get(position);
         StationCarJiLuData sta = new StationCarJiLuData(this);
-        LogUtils.d("这是一站点" + bean.getStationId());
         if (!sta.queryDangqian(sp.getInt(Keyword.BusOrderId), bean.getStationId())) {
             String url = String.format(HTTPURL.API_PROCESS, SpLogin.getKgId(), bean.getStationId(), sp.getInt(Keyword.BusOrderId), 1, GetDateTime.getdatetime());
             LogUtils.d("到站URL：" + url);
@@ -184,5 +198,13 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
             StationCarJiLuData sta = new StationCarJiLuData(this);
             adapter.getList(sta.queryJiLu(sp.getInt(Keyword.BusOrderId)));
         }
+        UpAndDownRecordData data = new UpAndDownRecordData(this);
+        int number = data.queryCarList(sp.getInt(Keyword.BusOrderId),1,0).size();
+        count.setText("" + number);
+    }
+
+    @OnClick(R.id.tv_chakan)
+    public void OnClick(View view){
+        startActivity(new Intent(this,CarShengyuChildActivity.class));
     }
 }

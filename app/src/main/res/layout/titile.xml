@@ -12,6 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:src="@drawable/school4_selecto_back"
+        android:layout_marginLeft="10dp"
+        android:clickable="true"
         android:visibility="gone" />
 
     <TextView

@@ -129,4 +129,12 @@ public class TeacherZT {
         }
         return false;
     }
+    /**
+     * 删除表
+     */
+    public void dele() {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        db.execSQL("delete from TeacherZT");
+
+    }
 }
