@@ -8,6 +8,7 @@ import com.fwk.shcool30.db.date.TeacherZT;
 import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.FristFaChe;
 import com.fwk.shcool30.modue.TeacherZTBean;
+import com.fwk.shcool30.util.LogUtils;
 import com.fwk.shcool30.util.ToastUtil;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class FristNetWork extends BaseNetWork {
 
                 try {
                     int paichedanhao = faChe.getRerurnValue();
+                    LogUtils.d("派车单号--" + paichedanhao);
                     sp.setInt(Keyword.BusOrderId, paichedanhao);
                 } catch (Exception o) {
                     mActivity.runOnUiThread(new Runnable() {

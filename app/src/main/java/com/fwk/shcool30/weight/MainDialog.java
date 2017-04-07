@@ -9,9 +9,13 @@ import com.fwk.shcool30.constanat.Keyword;
 import com.fwk.shcool30.listener.FacheListener;
 import com.fwk.shcool30.modue.BanciBean;
 import com.fwk.shcool30.modue.TeacherZTBean;
+import com.fwk.shcool30.modue.ZuofeiBean;
+import com.fwk.shcool30.network.HTTPURL;
+import com.fwk.shcool30.network.api.ZuofeiNetWork;
 import com.fwk.shcool30.ui.MainActivity;
 import com.fwk.shcool30.ui.StaionActivity;
 import com.fwk.shcool30.util.LogUtils;
+import com.fwk.shcool30.util.SharedPreferencesUtils;
 import com.fwk.shcool30.util.ToastUtil;
 
 import java.util.List;
@@ -200,28 +204,28 @@ public class MainDialog {
         builder.show();
     }
 
-//    public static void ZF(final Activity context, final ZuofeiNetWork work) {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//        builder.setCancelable(false);
-//        builder.setTitle("警告：").setMessage("注销本次记录？");
-//        builder.setNegativeButton("注销", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialogInterface, int i) {
-//                SharedPreferencesUtils sp = new SharedPreferencesUtils();
-//
-//                work.setUrl(Keyword.ZUOFEI,HTTPURL.API_ZUO_FEI + sp.getInt(Keyword.SP_PAICHEDANHAO), ZuofeiBean.class);
-//                dialogInterface.dismiss();
-//            }
-//        });
-//        builder.setPositiveButton("取消", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialogInterface, int i) {
-//
-//                dialogInterface.dismiss();
-//            }
-//        });
-//        builder.show();
-//    }
+    public static void ZF(final Activity context, final ZuofeiNetWork work) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setTitle("警告：").setMessage("注销本次记录？");
+        builder.setNegativeButton("注销", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                SharedPreferencesUtils sp = new SharedPreferencesUtils();
+
+                work.setUrl(Keyword.ZUOFEI, HTTPURL.API_ZUO_FEI + sp.getInt(Keyword.BusOrderId), ZuofeiBean.class);
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                dialogInterface.dismiss();
+            }
+        });
+        builder.show();
+    }
 
 
 //    public static void DaoZhan(final Activity context, String name, final SharedPreferencesUtils sp) {

@@ -4,16 +4,15 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by fanwenke on 2017/4/6.
- * 从接口中获取发车记录
+ * Created by fanwenke on 2017/4/7.
  */
 
-public class StationJiLuBean implements Serializable {
+public class StationWorkJiLuBean implements Serializable {
 
     /**
      * Success : 10000
      * Message : 获取成功
-     * RerurnValue : [{"BusStorpRecordId":1740,"BusOrderId":2148,"StationId":1,"SendTime":null,"ToStationTime":"2017-04-06T17:29:19","Status":1,"CreateDate":"2017-04-06T17:29:21.657"},{"BusStorpRecordId":1741,"BusOrderId":2148,"StationId":1,"SendTime":null,"ToStationTime":"2017-04-06T00:00:00","Status":1,"CreateDate":"2017-04-06T17:29:43.657"},{"BusStorpRecordId":1742,"BusOrderId":2148,"StationId":1,"SendTime":"2017-04-06T17:52:11","ToStationTime":"2017-04-06T17:31:02","Status":1,"CreateDate":"2017-04-06T17:31:04.22"},{"BusStorpRecordId":1743,"BusOrderId":2148,"StationId":2,"SendTime":"2017-04-06T18:22:58","ToStationTime":"2017-04-06T17:52:18","Status":1,"CreateDate":"2017-04-06T17:52:20.017"},{"BusStorpRecordId":1744,"BusOrderId":2148,"StationId":3,"SendTime":null,"ToStationTime":"2017-04-06T18:06:15","Status":1,"CreateDate":"2017-04-06T18:06:17.673"},{"BusStorpRecordId":1745,"BusOrderId":2148,"StationId":1,"SendTime":"2017-04-06T18:20:02","ToStationTime":"2017-04-06T18:18:05","Status":1,"CreateDate":"2017-04-06T18:18:07.53"},{"BusStorpRecordId":1746,"BusOrderId":2148,"StationId":1,"SendTime":"2017-04-06T19:16:29","ToStationTime":"2017-04-06T19:16:27","Status":1,"CreateDate":"2017-04-06T19:16:29.063"}]
+     * RerurnValue : [{"StationName":"地铁上地站","BusStorpRecordId":1769,"BusOrderId":2151,"StationId":1,"SendTime":"2017-04-07T12:02:40","ToStationTime":"2017-04-07T12:01:03","Status":1,"CreateDate":"2017-04-07T12:01:05.187"},{"StationName":"上地佳园","BusStorpRecordId":1770,"BusOrderId":2151,"StationId":2,"SendTime":"2017-04-07T13:44:12","ToStationTime":"2017-04-07T12:03:17","Status":1,"CreateDate":"2017-04-07T12:03:19.077"},{"StationName":"上地五街","BusStorpRecordId":1771,"BusOrderId":2151,"StationId":3,"SendTime":null,"ToStationTime":"2017-04-07T13:44:14","Status":1,"CreateDate":"2017-04-07T13:44:15.877"}]
      */
 
     private int Success;
@@ -44,24 +43,34 @@ public class StationJiLuBean implements Serializable {
         this.RerurnValue = RerurnValue;
     }
 
-    public static class RerurnValueBean {
+    public static class RerurnValueBean implements Serializable{
         /**
-         * BusStorpRecordId : 1740
-         * BusOrderId : 2148
+         * StationName : 地铁上地站
+         * BusStorpRecordId : 1769
+         * BusOrderId : 2151
          * StationId : 1
-         * SendTime : null
-         * ToStationTime : 2017-04-06T17:29:19
+         * SendTime : 2017-04-07T12:02:40
+         * ToStationTime : 2017-04-07T12:01:03
          * Status : 1
-         * CreateDate : 2017-04-06T17:29:21.657
+         * CreateDate : 2017-04-07T12:01:05.187
          */
 
+        private String StationName;
         private int BusStorpRecordId;
         private int BusOrderId;
         private int StationId;
-        private Object SendTime;
+        private String SendTime;
         private String ToStationTime;
         private int Status;
         private String CreateDate;
+
+        public String getStationName() {
+            return StationName;
+        }
+
+        public void setStationName(String StationName) {
+            this.StationName = StationName;
+        }
 
         public int getBusStorpRecordId() {
             return BusStorpRecordId;
@@ -87,11 +96,11 @@ public class StationJiLuBean implements Serializable {
             this.StationId = StationId;
         }
 
-        public Object getSendTime() {
+        public String getSendTime() {
             return SendTime;
         }
 
-        public void setSendTime(Object SendTime) {
+        public void setSendTime(String SendTime) {
             this.SendTime = SendTime;
         }
 
