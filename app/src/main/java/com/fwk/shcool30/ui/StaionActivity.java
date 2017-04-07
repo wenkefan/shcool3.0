@@ -17,6 +17,7 @@ import com.fwk.shcool30.db.date.UpAndDownRecordData;
 import com.fwk.shcool30.listener.DaoZhanListener;
 import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.BanciBean;
+import com.fwk.shcool30.modue.ChildWorkJiLuBean;
 import com.fwk.shcool30.modue.StationBean;
 import com.fwk.shcool30.modue.StationFADAOBean;
 import com.fwk.shcool30.modue.StationWorkJiLuBean;
@@ -24,6 +25,7 @@ import com.fwk.shcool30.modue.TeacherZTBean;
 import com.fwk.shcool30.network.HTTPURL;
 import com.fwk.shcool30.network.api.CarDZNetWork;
 import com.fwk.shcool30.network.api.CarFCNetWork;
+import com.fwk.shcool30.network.api.ChildWorkJiLuWork;
 import com.fwk.shcool30.network.api.StaionNetWork;
 import com.fwk.shcool30.network.api.StationJiLuWork;
 import com.fwk.shcool30.network.api.ZuofeiNetWork;
@@ -105,6 +107,13 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
         if (stationCarJiLuData.queryCount() == 0){
             getStationJiLu();
         }
+        UpAndDownRecordData upAndDownRecordData = new UpAndDownRecordData(this);
+        if (!upAndDownRecordData.queryJiLu(sp.getInt(Keyword.BusOrderId))){
+            String url = HTTPURL.shangxiachejilu + sp.getInt(Keyword.BusOrderId);
+            ChildWorkJiLuWork workJiLuWork = ChildWorkJiLuWork.newInastance(this);
+            workJiLuWork.setNetWorkListener(this);
+            workJiLuWork.setUrl(Keyword.CHILDWORKWORK,url, ChildWorkJiLuBean.class);
+        }
         chakan.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
         chakan.getPaint().setAntiAlias(true);//抗锯齿
         zuofei.setVisibility(View.VISIBLE);
@@ -184,6 +193,11 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 } else {
                     recyclerInit();
                 }
+                break;
+            case Keyword.CHILDWORKWORK:
+                UpAndDownRecordData data = new UpAndDownRecordData(this);
+                int number = data.queryCarList(sp.getInt(Keyword.BusOrderId),1,0).size();
+                count.setText("" + number);
                 break;
         }
     }

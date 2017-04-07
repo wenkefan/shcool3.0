@@ -172,4 +172,5 @@ public class Keyword {
     /**************************************StationActivity***********************************************************/
     public static final int STATIONJILU = 1300;
 
+    public static final int CHILDWORKWORK = 1400;
 }

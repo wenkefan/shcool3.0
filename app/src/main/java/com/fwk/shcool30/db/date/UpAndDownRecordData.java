@@ -229,6 +229,20 @@ public class UpAndDownRecordData {
         db.close();
         return false;
     }
+    //查看本次记录里是否有记录
+    public boolean queryJiLu(int BusorderId){
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from UpAndDownRecordBean where BusOrderId = ?",
+                new String[]{String.valueOf(BusorderId)});
+        if (cursor != null) {
+            if (cursor.moveToNext()) {
+                return true;
+            }
+        }
+        cursor.close();
+        db.close();
+        return false;
+    }
     //删除表
     public void dele(){
 
