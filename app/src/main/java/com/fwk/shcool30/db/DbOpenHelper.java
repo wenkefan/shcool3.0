@@ -44,6 +44,8 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.execSQL("create table StationCarJiLu(BusOrderId integer,StationName varchar(50),StationId integer,datatime varchar(20),IsDaozhan integer, IsworkDao integer, IsFache integer, IsworkFa integer)");
         //创建幼儿上下车记录
         db.execSQL("create table UpAndDownRecordBean(KgId integer, ClassId integer, ChildId integer, ChildName varchar(20), SACardNo varchar(20), BusOrderId integer, Shang integer, Xia integer, IsworkShang integer, IsworkXia integer, IsShang integer, IsXia integer)");
+        // 创建班级表 //已修改
+        db.execSQL("create table ClassInfo(ClassInfoID integer primary key UNIQUE,KgId integer,ClassName varchar(50),ClassImg varchar(200),ClassDes varchar(200),State integer,ClassType integer,DispayOrder integer,ClassCardNo varchar(20))");
 
 
     }

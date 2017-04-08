@@ -11,15 +11,18 @@ import android.widget.TextView;
 import com.fwk.shcool30.R;
 import com.fwk.shcool30.constanat.Keyword;
 import com.fwk.shcool30.db.date.AttendanceUserData;
+import com.fwk.shcool30.db.date.ClassInfoData;
 import com.fwk.shcool30.db.date.TeacherZT;
 import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.AttendanceUserBean;
 import com.fwk.shcool30.modue.BanciBean;
+import com.fwk.shcool30.modue.ClassMessage;
 import com.fwk.shcool30.modue.FristFaChe;
 import com.fwk.shcool30.modue.TeacherZTBean;
 import com.fwk.shcool30.network.HTTPURL;
 import com.fwk.shcool30.network.api.AttendanceUserWork;
 import com.fwk.shcool30.network.api.BanCinetwork;
+import com.fwk.shcool30.network.api.ClassInfoWork;
 import com.fwk.shcool30.network.api.FristNetWork;
 import com.fwk.shcool30.network.api.TeacherZTWork;
 import com.fwk.shcool30.sp.SpLogin;
@@ -246,6 +249,13 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
             AttendanceUserWork attuser = AttendanceUserWork.newInstance(this);
             attuser.setNetWorkListener(this);
             attuser.setUrl(Keyword.ATTENDANCEUSERFLAG,url, AttendanceUserBean.class);
+        }
+        ClassInfoData classdata = new ClassInfoData(this);
+        if (!classdata.querAll(SpLogin.getKgId())) {
+            String classinfo = HTTPURL.ClassInfo + SpLogin.getKgId();
+            LogUtils.d("班级URLclass---:" + classinfo);
+            ClassInfoWork classInfoWork = ClassInfoWork.newInstance(this);
+            classInfoWork.setUrl(123456,classinfo, ClassMessage.class);
         }
     }
 }

@@ -9,8 +9,10 @@ import android.widget.TextView;
 
 
 import com.fwk.shcool30.R;
+import com.fwk.shcool30.db.date.ClassInfoData;
 import com.fwk.shcool30.modue.ChildBean;
 import com.fwk.shcool30.modue.UpAndDownRecordBean;
+import com.fwk.shcool30.sp.SpLogin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
     private boolean IsSelect = false;//是否显示圆圈选择
     private boolean Isquanxuan = false;//是否全选
     private SelectChildListener listener;
+    private ClassInfoData classInfoData;
 
     public void onSetSelectChildListener(SelectChildListener listener) {
         this.listener = listener;
@@ -39,6 +42,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
     @Override
     public ClickableViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
+        classInfoData = new ClassInfoData(context);
         return new ChildViewHolde(LayoutInflater.from(parent.getContext()).inflate(R.layout.childrecyadapter, parent, false));
     }
 
@@ -48,6 +52,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
             final ChildViewHolde holde = (ChildViewHolde) holder;
             final boolean[] selectadapter = {false};//对单个的选择
             holde.tv.setText(list.get(position).getChildName());
+            holde.name.setText(classInfoData.query(SpLogin.getKgId(),list.get(position).getClassId()));
             if (type == 1) {
                 holde.iv.setBackgroundResource(R.mipmap.shangche);
             } else if (type == 2) {
@@ -83,6 +88,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
                     holde.xuanze.setVisibility(View.GONE);
                 }
             }
+
         }
         super.onBindViewHolder(holder, position);
     }
@@ -94,7 +100,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
 
     public class ChildViewHolde extends ClickableViewHolder {
 
-        private TextView tv;
+        private TextView tv,name;
         private ImageView iv, xuanze;
 
         public ChildViewHolde(View itemView) {
@@ -102,6 +108,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
             tv = $(R.id.tv_child_name);
             iv = $(R.id.iv_type_select);
             xuanze = $(R.id.iv_xuanxiang);
+            name = $(R.id.tv_child_class_name);
         }
     }
 

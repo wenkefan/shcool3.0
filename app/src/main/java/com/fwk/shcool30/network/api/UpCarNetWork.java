@@ -46,7 +46,9 @@ public class UpCarNetWork extends BaseNetWork {
     @Override
     public void onFailure(IOException e) {
 //        netWorkSelectListener.NetWorkError(Keyword.XiaURL);
-        listener.NetWorkError(Keyword.FLAGUPCARERROR);
+        if (listener != null) {
+            listener.NetWorkError(Keyword.FLAGUPCARERROR);
+        }
     }
 
     public interface NetWorkSelectListener {

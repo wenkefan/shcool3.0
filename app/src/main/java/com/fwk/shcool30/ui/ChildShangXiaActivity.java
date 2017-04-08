@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.fwk.shcool30.R;
 import com.fwk.shcool30.constanat.Keyword;
 import com.fwk.shcool30.db.date.AttendanceUserData;
+import com.fwk.shcool30.db.date.ClassInfoData;
 import com.fwk.shcool30.db.date.StationCarJiLuData;
 import com.fwk.shcool30.db.date.TeacherZT;
 import com.fwk.shcool30.db.date.UpAndDownRecordData;
@@ -275,11 +276,12 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 break;
             case R.id.select_child:
                 AttendanceUserData attendanceUserData = new AttendanceUserData(this);
+                ClassInfoData classInfoData = new ClassInfoData(this);
                 List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
                 final String[] clasList = new String[clazList.size()];
                 for (int i = 0; i < clazList.size(); i++) {
-                    LogUtils.d((int) clazList.get(i) + "");
-                    clasList[i] = clazList.get(i) + "";
+                    String classname = classInfoData.query(SpLogin.getKgId(),(int)clazList.get(i));
+                    clasList[i] = classname;
                 }
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                 dialog.setTitle("请选择班级");
@@ -494,6 +496,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     @Override
     public void BackListener(Intent intent) {
         //下车
+        IsSKXZ = false;
         /**
          * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
          */
@@ -508,9 +511,8 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 2);
         LogUtils.d("下车接口-----：" + url);
         UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
-        upCarNetWork.onSetSelectListener(this);
+        upCarNetWork.setNetWorkListener(this);
         upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
-        IsSKXZ = false;
     }
 
     @Override

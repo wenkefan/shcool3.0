@@ -106,4 +106,9 @@ public class HTTPURL {
      */
     public static final String youerbiao = API_JC + "Option=GetAttendanceUserInfo&KgId=%1$s&modifyTime=%2$s";
 
+    /**
+     * 获取班级表
+     */
+    public static final String ClassInfo = API_JC + "Option=GetClassInfo&KgId=";
+
 }
