@@ -35,14 +35,18 @@ public class UpCarNetWork extends BaseNetWork {
             if (cla != null){
 
                 UpDownCar upDownCar = (UpDownCar) cla;
-
-                netWorkSelectListener.NetWorkSuccess(Keyword.FLAGUPCAR,flag - Keyword.FLAGUPCAR);
+                if (flag == Keyword.FLAGUPCAR) {
+                    listener.NetWorkSuccess(flag);
+                } else {
+                    netWorkSelectListener.NetWorkSuccess(Keyword.FLAGUPCAR,flag - Keyword.FLAGUPCAR - Keyword.FLAGUPCAR);
+                }
             }
     }
 
     @Override
     public void onFailure(IOException e) {
-        netWorkSelectListener.NetWorkError(Keyword.XiaURL);
+//        netWorkSelectListener.NetWorkError(Keyword.XiaURL);
+        listener.NetWorkError(Keyword.FLAGUPCARERROR);
     }
 
     public interface NetWorkSelectListener {

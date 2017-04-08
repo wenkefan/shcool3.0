@@ -69,6 +69,20 @@ public class UpAndDownRecordData {
             db.endTransaction();
         }
     }
+    //下车记录
+    public void upSelectdateXia(int Xia, int IsXia, int isworkxia, int child, int BusOrderId, int isshang) {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.execSQL("update UpAndDownRecordBean set Xia = ?, IsXia = ?, IsworkXia = ? where ChildId = ? and BusOrderId = ? and IsShang = ? ",
+                    new Object[]{Xia, IsXia,isworkxia, child, BusOrderId, isshang});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
 
     //按照站点查找
     public List<UpAndDownRecordBean> queryStationShangList(int BusOrderId, int stationId) {

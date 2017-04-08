@@ -116,6 +116,7 @@ public class Keyword {
 
     public static final int FLAGDOWNCAR = 1101;//上车
     public static final int FLAGUPCAR = 1102;//下车
+    public static final int FLAGUPCARERROR = 1103;//下车
 
 
     /**************************************基础数据关键字**********************************************************/

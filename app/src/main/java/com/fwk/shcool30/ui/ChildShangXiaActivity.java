@@ -41,6 +41,7 @@ import com.fwk.shcool30.weight.MainDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +86,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     private StationBean.RerurnValueBean stationBean;
     private boolean IsQuanxuan = false;
     private boolean IsSKXZ = false;//下车是刷卡还是选择
+    private boolean IsQunOurDan = false;//是群下还是单下
     private int stationCount;//站点的个数
     private int dangqianstationCount;
     private StationCarJiLuData stationCarJiLuData = new StationCarJiLuData(this);
@@ -97,13 +99,13 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     @Override
     protected void init() {
         sp = new SharedPreferencesUtils();
-        stationCount = ((List<StationBean.RerurnValueBean>)sp.queryForSharedToObject(Keyword.STAIDLIST)).size();
+        stationCount = ((List<StationBean.RerurnValueBean>) sp.queryForSharedToObject(Keyword.STAIDLIST)).size();
         data = new UpAndDownRecordData(this);
         Intent intent = getIntent();
         stationBean = (StationBean.RerurnValueBean) intent.getSerializableExtra(Keyword.SELECTSTA);
         title.setText(stationBean.getStationName());
         dangqianstationCount = stationCarJiLuData.queryCount();
-        if (stationCount == dangqianstationCount){
+        if (stationCount == dangqianstationCount) {
             fache.setText("结束");
         }
         setShangRecycler();
@@ -192,6 +194,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 MainDialog.Dangzhanshangxiache(this, selectBean.getChildName());
                 return;
             } else {
+                IsSKXZ = false;
                 //下车
                 /**
                  * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
@@ -209,7 +212,6 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
                 upCarNetWork.onSetSelectListener(this);
                 upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
-                IsSKXZ = false;
                 return;
             }
         }
@@ -244,9 +246,9 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     public void OnClick(View view) {
         switch (view.getId()) {
             case R.id.btn_fache:
-                if (dangqianstationCount == stationCount){
+                if (dangqianstationCount == stationCount) {
                     //最后一站 要结束
-                    int number = data.queryCarList(sp.getInt(Keyword.BusOrderId),1,0).size();
+                    int number = data.queryCarList(sp.getInt(Keyword.BusOrderId), 1, 0).size();
                     if (number == 0) {
                         /**
                          * 发车字段为：班次编号、kgid、发车时间、类型(1发车、2停车)
@@ -306,26 +308,14 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 selectChildlist = getCardList();
                 for (Integer key : itme) {
 
-                    /**
-                     * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
-                     */
-                    String url1 = String.format(
-                            HTTPURL.API_STUDENT_OPEN_DOWN,
-                            sp.getInt(Keyword.BusOrderId),
-                            selectChildlist.get(key).getChildId(),
-                            stationBean.getStationId(),
-                            GetDateTime.getdatetime(),
-                            1,
-                            SpLogin.getKgId(),
-                            2);
-                    LogUtils.d("下车接口-----：" + url1);
-                    UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
-                    upCarNetWork.onSetSelectListener(ChildShangXiaActivity.this);
-                    upCarNetWork.setUrl(Keyword.FLAGUPCAR + key, url1, UpDownCar.class);
                     IsSKXZ = true;
-//                    ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
-//                    data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(key).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
+
+                    ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
+                    data.upSelectdateXia(stationBean.getStationId(), 1, 0, selectChildlist.get(key).getChildId(), sp.getInt(Keyword.BusOrderId), 1);
+                    adapter2.getDate(getStationList("Xia"));
+                    adapter3.getDate(getCardList());
                 }
+                urlsetXia(itme);
                 adapter2.getDate(getStationList("Xia"));
                 adapter3.getDate(getCardList());
                 qlxz.setVisibility(View.VISIBLE);
@@ -360,6 +350,30 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
         }
     }
 
+    //群选之后的下车请求
+    private void urlsetXia(List<Integer> itme) {
+        for (Integer key : itme) {
+            IsSKXZ = true;
+            /**
+             * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
+             */
+            String url1 = String.format(
+                    HTTPURL.API_STUDENT_OPEN_DOWN,
+                    sp.getInt(Keyword.BusOrderId),
+                    selectChildlist.get(key).getChildId(),
+                    stationBean.getStationId(),
+                    GetDateTime.getdatetime(),
+                    1,
+                    SpLogin.getKgId(),
+                    2);
+            LogUtils.d("下车接口-----：" + url1);
+            UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
+            upCarNetWork.onSetSelectListener(ChildShangXiaActivity.this);
+            upCarNetWork.setUrl(Keyword.FLAGUPCAR + Keyword.FLAGUPCAR + key, url1, UpDownCar.class);
+        }
+
+    }
+
     @Override
     public void NetWorkSuccess(int Flag) {
         switch (Flag) {
@@ -391,36 +405,38 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 adapter1.getDate(getStationList("Shang"));
                 adapter3.getDate(getCardList());
                 break;
-            case Keyword.FLAGUPCAR://下车
-//                ToastUtil.show(selectBean.getChildName() + "下车");
-//                data.updateXia(stationBean.getStationId(), 1, 1, CarId, sp.getInt(Keyword.BusOrderId), 1);
-//                adapter2.getDate(getStationList("Xia"));
-//                adapter3.getDate(getCardList());
-                break;
             case Keyword.FLAGFIRSTFACHE:
                 sp.removData();
                 stationCarJiLuData.dele();
                 TeacherZT teacherZT = new TeacherZT(this);
                 teacherZT.dele();
                 StaionActivity.stationActivity.finish();
-                startActivity(new Intent(this,MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 finish();
+                break;
+            case Keyword.FLAGUPCAR:
+                if (IsSKXZ){
+                    ToastUtil.show(selectBean.getChildName() + "下车");
+                    data.upSelectdateXia(stationBean.getStationId(), 1, 0, ChildId, sp.getInt(Keyword.BusOrderId), 1);
+                    adapter2.getDate(getStationList("Xia"));
+                    adapter3.getDate(getCardList());
+                } else {
+                    ToastUtil.show(selectBean.getChildName() + "下车");
+                    data.updateXia(stationBean.getStationId(), 1, 1, CarId, sp.getInt(Keyword.BusOrderId), 1);
+                    adapter2.getDate(getStationList("Xia"));
+                    adapter3.getDate(getCardList());
+                }
                 break;
         }
     }
 
     @Override
     public void NetWorkSuccess(int Flag, int key) {
-        if (IsSKXZ) {
-            data.updateXia(stationBean.getStationId(), 1, 1, selectChildlist.get(key).getSACardNo(), sp.getInt(Keyword.BusOrderId), 1);
-            adapter2.getDate(getStationList("Xia"));
-            adapter3.getDate(getCardList());
-        } else {
-            ToastUtil.show(selectBean.getChildName() + "下车");
-            data.updateXia(stationBean.getStationId(), 1, 1, CarId, sp.getInt(Keyword.BusOrderId), 1);
-            adapter2.getDate(getStationList("Xia"));
-            adapter3.getDate(getCardList());
-        }
+
+        data.upSelectdateXia(stationBean.getStationId(), 1, 1, selectChildlist.get(key).getChildId(), sp.getInt(Keyword.BusOrderId), 1);
+        adapter2.getDate(getStationList("Xia"));
+        adapter3.getDate(getCardList());
+        map.remove("" + key);
     }
 
     @Override
@@ -454,8 +470,16 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 adapter1.getDate(getStationList("Shang"));
                 adapter3.getDate(getCardList());
                 break;
-            case Keyword.FLAGUPCAR://下车
+            case Keyword.FLAGUPCARERROR://下车
                 if (IsSKXZ) {
+                    if (IsQunOurDan) {
+                        //单下
+                        ToastUtil.show(selectBean.getChildName() + "下车");
+                        data.upSelectdateXia(stationBean.getStationId(), 1, 0, ChildId, sp.getInt(Keyword.BusOrderId), 1);
+                        adapter2.getDate(getStationList("Xia"));
+                        adapter3.getDate(getCardList());
+                        IsQunOurDan = false;
+                    }
 
                 } else {
                     ToastUtil.show(selectBean.getChildName() + "下车");
@@ -513,6 +537,8 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
         map.put(key, value);
     }
 
+    private int ChildId;//选择的ChildID
+
     @Override
     public void setOnItemListener(final int position, BaseRecyclerAdapter.ClickableViewHolder holder) {
         LogUtils.d("position--" + position);
@@ -523,13 +549,17 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
         builder.setNegativeButton("下车", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                IsSKXZ = true;
+                IsQunOurDan = true;
+                selectBean = selectChildlist.get(position);
                 /**
                  * 字段：派车单号、幼儿编号、站点、时间、状态、kgid、上下车类型（1、上车；2、下车）
                  */
+                ChildId = selectChildlist.get(position).getChildId();
                 String url = String.format(
                         HTTPURL.API_STUDENT_OPEN_DOWN,
                         sp.getInt(Keyword.BusOrderId),
-                        selectChildlist.get(position).getChildId(),
+                        ChildId,
                         stationBean.getStationId(),
                         GetDateTime.getdatetime(),
                         1,
@@ -537,13 +567,8 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                         2);
                 LogUtils.d("下车接口-----：" + url);
                 UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(ChildShangXiaActivity.this);
-                upCarNetWork.onSetSelectListener(ChildShangXiaActivity.this);
+                upCarNetWork.setNetWorkListener(ChildShangXiaActivity.this);
                 upCarNetWork.setUrl(Keyword.FLAGUPCAR + position, url, UpDownCar.class);
-                IsSKXZ = true;
-                ToastUtil.show(selectChildlist.get(position).getChildName() + "下车");
-//                data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(position).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
-//                adapter2.getDate(getStationList("Xia"));
-//                adapter3.getDate(getCardList());
                 dialogInterface.dismiss();
             }
         });
