@@ -77,8 +77,9 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
 
     private DisplayMetrics display;
 
-    private List<StationBean.RerurnValueBean> stationBean;
+    private List<StationBean.RerurnValueBean> stationBean;//线路数据
 
+    private StationCarJiLuData stationCarJiLuData;
 
 
     @Override
@@ -90,6 +91,7 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
     protected void init() {
         stationActivity = this;
         sp = new SharedPreferencesUtils();
+        stationCarJiLuData = new StationCarJiLuData(this);
         banciBean = (BanciBean.RerurnValueBean) getIntent().getSerializableExtra(Keyword.IntentBanCi0);
         teacherBean = (TeacherZTBean.RerurnValueBean) getIntent().getSerializableExtra(Keyword.IntentBanCi1);
         //请求线路
@@ -103,30 +105,30 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 getXianLu1();
             }
         }
-        StationCarJiLuData stationCarJiLuData = new StationCarJiLuData(this);
-        if (stationCarJiLuData.queryCount() == 0){
+        if (stationCarJiLuData.queryCount() == 0) {
             getStationJiLu();
         }
         UpAndDownRecordData upAndDownRecordData = new UpAndDownRecordData(this);
-        if (!upAndDownRecordData.queryJiLu(sp.getInt(Keyword.BusOrderId))){
+        if (!upAndDownRecordData.queryJiLu(sp.getInt(Keyword.BusOrderId))) {
             String url = HTTPURL.shangxiachejilu + sp.getInt(Keyword.BusOrderId);
             ChildWorkJiLuWork workJiLuWork = ChildWorkJiLuWork.newInastance(this);
+            LogUtils.d("幼儿记录请求URL--" + url);
             workJiLuWork.setNetWorkListener(this);
-            workJiLuWork.setUrl(Keyword.CHILDWORKWORK,url, ChildWorkJiLuBean.class);
+            workJiLuWork.setUrl(Keyword.CHILDWORKWORK, url, ChildWorkJiLuBean.class);
         }
         chakan.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
         chakan.getPaint().setAntiAlias(true);//抗锯齿
         zuofei.setVisibility(View.VISIBLE);
     }
 
+    //请求站点到站记录
     private void getStationJiLu() {
-        StationCarJiLuData data = new StationCarJiLuData(this);
-        if (data.queryJiLu(sp.getInt(Keyword.BusOrderId)) == null) {
+        if (stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)) == null) {
             //请进记录接口
             String url = HTTPURL.daozhanjilu + sp.getInt(Keyword.BusOrderId);
             StationJiLuWork stationJiLuWork = StationJiLuWork.newInstance(this);
             stationJiLuWork.setNetWorkListener(this);
-            stationJiLuWork.setUrl(Keyword.STATIONJILU,url, StationWorkJiLuBean.class);
+            stationJiLuWork.setUrl(Keyword.STATIONJILU, url, StationWorkJiLuBean.class);
             LogUtils.d("到站记录接口--" + url);
         }
     }
@@ -156,6 +158,7 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
         mRecyclerView.setLayoutManager(layoutManager);
         adapter = new MapRecyclerViewAdapter(display);
         mRecyclerView.setAdapter(adapter);
+        adapter.getList(stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)));
         adapter.setOnItemListener(this);
         adapter.setOnClickListener(this);
     }
@@ -169,34 +172,30 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 break;
             case Keyword.FLAGDAOZHAN:
 
-                StationCarJiLuData sta = new StationCarJiLuData(this);
-                LogUtils.d("新添一站点");
-                sta.add(sp.getInt(Keyword.BusOrderId), bean, GetDateTime.getH() + ":" + GetDateTime.getM(), 1);
-                adapter.getList(sta.queryJiLu(sp.getInt(Keyword.BusOrderId)));
+                stationCarJiLuData.add(sp.getInt(Keyword.BusOrderId), bean, GetDateTime.getH() + ":" + GetDateTime.getM(), 1);
+                adapter.getList(stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)));
                 Intent intent = new Intent(StaionActivity.this, ChildShangXiaActivity.class);
                 intent.putExtra(Keyword.SELECTSTA, bean);
                 startActivity(intent);
                 break;
             case Keyword.ZUOFEI://作废成功
                 sp.removData();
-                StationCarJiLuData stationCarJiLuData = new StationCarJiLuData(this);
                 stationCarJiLuData.dele();
                 TeacherZT teacherZT = new TeacherZT(this);
                 teacherZT.dele();
-                startActivity(new Intent(this,MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 finish();
                 break;
             case Keyword.STATIONJILU:
                 if (adapter != null) {
-                    StationCarJiLuData sta1 = new StationCarJiLuData(this);
-                    adapter.getList(sta1.queryJiLu(sp.getInt(Keyword.BusOrderId)));
+                    adapter.getList(stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)));
                 } else {
                     recyclerInit();
                 }
                 break;
             case Keyword.CHILDWORKWORK:
                 UpAndDownRecordData data = new UpAndDownRecordData(this);
-                int number = data.queryCarList(sp.getInt(Keyword.BusOrderId),1,0).size();
+                int number = data.queryCarList(sp.getInt(Keyword.BusOrderId), 1, 0).size();
                 count.setText("" + number);
                 break;
         }
@@ -204,11 +203,10 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
 
     @Override
     public void NetWorkError(int Flag) {
-        switch (Flag){
+        switch (Flag) {
             case Keyword.FLAGDAOZHANERROR:
-                StationCarJiLuData sta = new StationCarJiLuData(this);
-                sta.add(sp.getInt(Keyword.BusOrderId), bean, GetDateTime.getH() + ":" + GetDateTime.getM(), 0);
-                adapter.getList(sta.queryJiLu(sp.getInt(Keyword.BusOrderId)));
+                stationCarJiLuData.add(sp.getInt(Keyword.BusOrderId), bean, GetDateTime.getH() + ":" + GetDateTime.getM(), 0);
+                adapter.getList(stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)));
                 Intent intent = new Intent(StaionActivity.this, ChildShangXiaActivity.class);
                 intent.putExtra(Keyword.SELECTSTA, bean);
                 startActivity(intent);
@@ -221,12 +219,13 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
 
         ToastUtil.show("xuanzele");
     }
+
     private StationBean.RerurnValueBean bean;
+
     @Override
     public void OnClickListener(int position) {
         bean = stationBean.get(position);
-        StationCarJiLuData sta = new StationCarJiLuData(this);
-        if (!sta.queryDangqian(sp.getInt(Keyword.BusOrderId), bean.getStationId())) {
+        if (!stationCarJiLuData.queryDangqian(sp.getInt(Keyword.BusOrderId), bean.getStationId())) {
             String url = String.format(HTTPURL.API_PROCESS, SpLogin.getKgId(), bean.getStationId(), sp.getInt(Keyword.BusOrderId), 1, GetDateTime.getdatetime());
             LogUtils.d("到站URL：" + url);
             CarDZNetWork carDZNetWork = CarDZNetWork.newInstance(this);
@@ -243,19 +242,18 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
     protected void onResume() {
         super.onResume();
         if (adapter != null) {
-            StationCarJiLuData sta = new StationCarJiLuData(this);
-            adapter.getList(sta.queryJiLu(sp.getInt(Keyword.BusOrderId)));
+            adapter.getList(stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)));
         }
         UpAndDownRecordData data = new UpAndDownRecordData(this);
-        int number = data.queryCarList(sp.getInt(Keyword.BusOrderId),1,0).size();
+        int number = data.queryCarList(sp.getInt(Keyword.BusOrderId), 1, 0).size();
         count.setText("" + number);
     }
 
-    @OnClick({R.id.tv_chakan,R.id.title_right_iv})
-    public void OnClick(View view){
-        switch (view.getId()){
+    @OnClick({R.id.tv_chakan, R.id.title_right_iv})
+    public void OnClick(View view) {
+        switch (view.getId()) {
             case R.id.tv_chakan:
-                startActivity(new Intent(this,CarShengyuChildActivity.class));
+                startActivity(new Intent(this, CarShengyuChildActivity.class));
                 break;
             case R.id.title_right_iv:
                 ZuofeiNetWork work = ZuofeiNetWork.newInstance(this);

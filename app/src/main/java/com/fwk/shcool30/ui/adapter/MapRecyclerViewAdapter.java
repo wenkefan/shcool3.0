@@ -79,9 +79,6 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
             animation.setRepeatMode(Animation.REVERSE);
             animation.setDuration(1000);
             set.addAnimation(animation);
-            //开始启动动画
-            if ((stationCarJiLuBeen == null ? 0 : stationCarJiLuBeen.size() - 1) == position) {
-            }
             //隐藏上下两个棍子
             if (position == 0) {
                 viewHolder.start.setVisibility(View.GONE);
@@ -89,15 +86,19 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
             if (position == getItemCount() - 1) {
                 viewHolder.end.setVisibility(View.GONE);
             }
-
-            if (position < (stationCarJiLuBeen == null ? 0 : stationCarJiLuBeen.size())) {
+            //第一次进入时，站点动画
+            if (stationCarJiLuBeen == null && position == 0) {
                 viewHolder.ring.setImageResource(R.drawable.ring2);
                 viewHolder.start.setBackgroundColor(0xff669900);
+                viewHolder.ring.setAnimation(set);
+                viewHolder.daozhan.setVisibility(View.VISIBLE);
             }
             if (stationCarJiLuBeen != null) {
-                try {
+                StationCarJiLuBean bean = stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1);
+                if (bean.getIsFache() == 0) {
+                    //已到站，未发车
                     if (position < stationCarJiLuBeen.size() - 1) {
-
+                        viewHolder.ring.setImageResource(R.drawable.ring2);
                         viewHolder.daozhan.setVisibility(View.GONE);
                         viewHolder.end.setBackgroundColor(0xff669900);
                         viewHolder.sjsj.setVisibility(View.VISIBLE);
@@ -105,29 +106,38 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
                         viewHolder.xiangqing.setVisibility(View.VISIBLE);
                         viewHolder.xiangqing.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
                         viewHolder.xiangqing.getPaint().setAntiAlias(true);//抗锯齿
-                    } else if (position == stationCarJiLuBeen.size() - 1) {
-                        if (stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1).getIsFache() == 0) {
+                    }
+                    if (position == stationCarJiLuBeen.size() - 1) {
+                        viewHolder.ring.setImageResource(R.drawable.ring2);
+                        viewHolder.start.setBackgroundColor(0xff669900);
+                        viewHolder.ring.setAnimation(set);
+                        if (bean.getIsDaozhan() == 1) {
                             viewHolder.daozhan.setVisibility(View.VISIBLE);
                             viewHolder.daozhan.setText("已到站");
-                            viewHolder.ring.setAnimation(set);
-                        } else {
-                            viewHolder.daozhan.setVisibility(View.GONE);
-                            viewHolder.end.setBackgroundColor(0xff669900);
-                            viewHolder.sjsj.setVisibility(View.VISIBLE);
-                            viewHolder.sjsj.setText(stationCarJiLuBeen.get(position).getDatatime());
-                        }
-                    } else if (position == stationCarJiLuBeen.size()) {
-                        if (stationCarJiLuBeen.get(stationCarJiLuBeen.size() - 1).getIsFache() == 1) {
-                            viewHolder.daozhan.setVisibility(View.VISIBLE);
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                if (position == 0) {
-                    viewHolder.daozhan.setVisibility(View.VISIBLE);
+                } else {
+                    //已到站，发车
+                    if (position < stationCarJiLuBeen.size()) {
+                        viewHolder.ring.setImageResource(R.drawable.ring2);
+                        viewHolder.daozhan.setVisibility(View.GONE);
+                        viewHolder.end.setBackgroundColor(0xff669900);
+                        viewHolder.sjsj.setVisibility(View.VISIBLE);
+                        viewHolder.sjsj.setText(stationCarJiLuBeen.get(position).getDatatime());
+                        viewHolder.xiangqing.setVisibility(View.VISIBLE);
+                        viewHolder.xiangqing.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+                        viewHolder.xiangqing.getPaint().setAntiAlias(true);//抗锯齿
+                    }
+                    try {
+                        if (position == stationCarJiLuBeen.size()) {
+                            viewHolder.ring.setImageResource(R.drawable.ring2);
+                            viewHolder.start.setBackgroundColor(0xff669900);
+                            viewHolder.ring.setAnimation(set);
+                            viewHolder.daozhan.setVisibility(View.VISIBLE);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 

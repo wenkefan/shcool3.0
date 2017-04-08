@@ -300,6 +300,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 for (String key : map.keySet()) {
                     if (map.get(key).equals("yes")) {
                         itme.add(Integer.valueOf(key));
+                        LogUtils.d("key--" + key);
                     }
                 }
                 selectChildlist = getCardList();
@@ -322,8 +323,8 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                     upCarNetWork.onSetSelectListener(ChildShangXiaActivity.this);
                     upCarNetWork.setUrl(Keyword.FLAGUPCAR + key, url1, UpDownCar.class);
                     IsSKXZ = true;
-                    ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
-                    data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(key).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
+//                    ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
+//                    data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(key).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
                 }
                 adapter2.getDate(getStationList("Xia"));
                 adapter3.getDate(getCardList());
@@ -398,7 +399,6 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 break;
             case Keyword.FLAGFIRSTFACHE:
                 sp.removData();
-//                data.dele();
                 stationCarJiLuData.dele();
                 TeacherZT teacherZT = new TeacherZT(this);
                 teacherZT.dele();
@@ -412,7 +412,6 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     @Override
     public void NetWorkSuccess(int Flag, int key) {
         if (IsSKXZ) {
-//            ToastUtil.show(selectChildlist.get(key).getChildName() + "下车");
             data.updateXia(stationBean.getStationId(), 1, 1, selectChildlist.get(key).getSACardNo(), sp.getInt(Keyword.BusOrderId), 1);
             adapter2.getDate(getStationList("Xia"));
             adapter3.getDate(getCardList());
@@ -516,6 +515,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
 
     @Override
     public void setOnItemListener(final int position, BaseRecyclerAdapter.ClickableViewHolder holder) {
+        LogUtils.d("position--" + position);
         selectChildlist = getCardList();
         android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
         builder.setCancelable(false);
@@ -541,9 +541,9 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 upCarNetWork.setUrl(Keyword.FLAGUPCAR + position, url, UpDownCar.class);
                 IsSKXZ = true;
                 ToastUtil.show(selectChildlist.get(position).getChildName() + "下车");
-                data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(position).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
-                adapter2.getDate(getStationList("Xia"));
-                adapter3.getDate(getCardList());
+//                data.updateXia(stationBean.getStationId(),1,0,selectChildlist.get(position).getSACardNo(),sp.getInt(Keyword.BusOrderId),1);
+//                adapter2.getDate(getStationList("Xia"));
+//                adapter3.getDate(getCardList());
                 dialogInterface.dismiss();
             }
         });
