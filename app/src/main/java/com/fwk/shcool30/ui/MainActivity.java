@@ -233,7 +233,7 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
                     //是自己的  直接进去
                 } else {
                     //不是自己的 不让进
-                    ToastUtil.show("正在运行中，请勿重复发车！");
+                    ToastUtil.show("此班次由其他老师操作中...");
                 }
                 break;
             case 2:

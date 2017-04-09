@@ -1,6 +1,5 @@
 package com.fwk.shcool30.ui;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;

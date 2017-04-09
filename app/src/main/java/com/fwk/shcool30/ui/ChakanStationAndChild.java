@@ -52,13 +52,11 @@ public class ChakanStationAndChild extends NFCBaseActivityNo {
                 chakanStation.setStationName(list.get(i).getStationName() + "--上车");
                 chakanStation.setShangXia(1);
                 chakanStationList.add(chakanStation);
-            }
-            if (list.get(i).getIsFache() == 1){
-                ChakanStation chakanStation = new ChakanStation();
-                chakanStation.setStationid(list.get(i).getStationId());
-                chakanStation.setStationName(list.get(i).getStationName() + "--下车");
-                chakanStation.setShangXia(2);
-                chakanStationList.add(chakanStation);
+                ChakanStation chakanStation1 = new ChakanStation();
+                chakanStation1.setStationid(list.get(i).getStationId());
+                chakanStation1.setStationName(list.get(i).getStationName() + "--下车");
+                chakanStation1.setShangXia(2);
+                chakanStationList.add(chakanStation1);
             }
         }
 
