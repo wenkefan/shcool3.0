@@ -32,7 +32,7 @@ import butterknife.BindView;
  * Created by wenke on 2017/4/7.
  */
 
-public class SelectClasChildActivity extends BaseActivity implements NetWorkListener, Selectclasschildadapter.SelectListener {
+public class SelectClasChildActivity extends NFCBaseActivityNo implements NetWorkListener, Selectclasschildadapter.SelectListener {
 
     @BindView(R.id.title_tv)
     TextView title;

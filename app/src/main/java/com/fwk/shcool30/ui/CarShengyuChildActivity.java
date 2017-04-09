@@ -16,7 +16,7 @@ import butterknife.OnClick;
  * Created by fanwenke on 2017/4/7.
  */
 
-public class CarShengyuChildActivity extends BaseActivity {
+public class CarShengyuChildActivity extends NFCBaseActivityNo {
 
     @BindView(R.id.title_tv)
     TextView title;

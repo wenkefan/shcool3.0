@@ -217,7 +217,8 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
     @Override
     public void setOnItemListener(int position, BaseRecyclerAdapter.ClickableViewHolder holder) {
 
-        ToastUtil.show("xuanzele");
+        Intent intent = new Intent(this,ChakanStationAndChild.class);
+        startActivity(intent);
     }
 
     private StationBean.RerurnValueBean bean;
