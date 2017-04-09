@@ -52,7 +52,7 @@ public class ChildRecyAdapter extends BaseRecyclerAdapter {
             final ChildViewHolde holde = (ChildViewHolde) holder;
             final boolean[] selectadapter = {false};//对单个的选择
             holde.tv.setText(list.get(position).getChildName());
-            holde.name.setText(classInfoData.query(SpLogin.getKgId(),list.get(position).getClassId()));
+            holde.name.setText(classInfoData.query(list.get(position).getKgId(),list.get(position).getClassId()));
             if (type == 1) {
                 holde.iv.setBackgroundResource(R.mipmap.shangche);
             } else if (type == 2) {

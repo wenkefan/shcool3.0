@@ -36,16 +36,14 @@ public class DbOpenHelper extends SQLiteOpenHelper {
                 "AttendanceDirections integer ,Status integer,RunningState integer,ModifierId integer," +
                 "StartTime varchar(20),EndTime varchar(20),AuditStatus integer ,AuditId integer,AuditDate varchar(20),ModifyDate varchar(20),State integer,Remark varchar(400))");
         // 创建考勤用户表 //未改
-        db.execSQL("create table AttendanceUser(ID integer primary key autoincrement,KgId integer,WorkerExtensionId integer , UserType integer,UserId integer,ClassInfoID integer,Note nvarchar(20),UserName nvarchar(20),Sex integer ,HeadImage nvarchar(20) ,BirthDay datetime,AutoSendMsg integer,State integer,SACardNo varchar(50),CampusNo varchar(20),MonitorInfo varchar(20))");
+        db.execSQL("create table UserData(ID integer primary key autoincrement,KgId integer,WorkerExtensionId integer , UserType integer,UserId integer,ClassInfoID integer,Note nvarchar(20),UserName nvarchar(20),Sex integer ,HeadImage nvarchar(20) ,BirthDay datetime,AutoSendMsg integer,State integer,SACardNo varchar(50),CampusNo varchar(20),MonitorInfo varchar(20))");
 
-        //创建上下车记录表
-//        db.execSQL("create table ShangXiaCarJiLu(UserId integer, KgId integer,BusOrderId integer, SACardNo varchar(20),ConnectStation integer, ConnectEndStation integer,SendStartStation integer, SendStation integer,NetWork integer, UserType integer)");
         //到站记录
         db.execSQL("create table StationCarJiLu(BusOrderId integer,StationName varchar(50),StationId integer,datatime varchar(20),IsDaozhan integer, IsworkDao integer, IsFache integer, IsworkFa integer)");
         //创建幼儿上下车记录
         db.execSQL("create table UpAndDownRecordBean(KgId integer, ClassId integer, ChildId integer, ChildName varchar(20), SACardNo varchar(20), BusOrderId integer, Shang integer, Xia integer, IsworkShang integer, IsworkXia integer, IsShang integer, IsXia integer)");
         // 创建班级表 //已修改
-        db.execSQL("create table ClassInfo(ClassInfoID integer primary key UNIQUE,KgId integer,ClassName varchar(50),ClassImg varchar(200),ClassDes varchar(200),State integer,ClassType integer,DispayOrder integer,ClassCardNo varchar(20))");
+        db.execSQL("create table ClassInfoData(ClassInfoID integer primary key UNIQUE,KgId integer,ClassName varchar(50),ClassImg varchar(200),ClassDes varchar(200),State integer,ClassType integer,DispayOrder integer,ClassCardNo varchar(20))");
 
 
     }

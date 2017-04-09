@@ -183,6 +183,7 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
                     Intent intent = new Intent(MainActivity.this,StaionActivity.class);
                     intent.putExtra(Keyword.IntentBanCi0,banciBean);
                     startActivity(intent);
+                    finish();
                     break;
             }
         }

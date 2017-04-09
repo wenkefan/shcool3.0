@@ -48,7 +48,7 @@ public class AttendanceUserData {
                         int autoSend = Bean.getAutoSendMsg();
                         String note = Bean.getNote();
                         db.execSQL(
-                                "insert into AttendanceUser(KgId,WorkerExtensionId,UserType,UserId,ClassInfoID,Note,UserName,Sex,HeadImage,BirthDay,AutoSendMsg,State,SACardNo,CampusNo) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                                "insert into UserData(KgId,WorkerExtensionId,UserType,UserId,ClassInfoID,Note,UserName,Sex,HeadImage,BirthDay,AutoSendMsg,State,SACardNo,CampusNo) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                                 new Object[]{kgid, workerid, usertype, userid, classinfoid,
                                         note, username, sex, headimage, BirthDay,
                                         autoSend, state, sacardno, campusno});
@@ -67,7 +67,7 @@ public class AttendanceUserData {
 
     public boolean queryCound() {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select * from AttendanceUser", null);
+        Cursor cursor = db.rawQuery("select * from UserData", null);
         if (cursor.getCount() > 0) {
             cursor.close();
             db.close();
@@ -77,11 +77,23 @@ public class AttendanceUserData {
         db.close();
         return false;
     }
-
+    public boolean queryKgidCound(int kgid){
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from UserData where KgId = ?",
+                new String[]{String.valueOf(kgid)});
+        if (cursor.getCount() > 0) {
+            cursor.close();
+            db.close();
+            return true;
+        }
+        cursor.close();
+        db.close();
+        return false;
+    }
     //查询幼儿
     public AttendanceUserBean.RerurnValueBean queryChild(String sacardno) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select * from AttendanceUser where SACardNo = ? and State = ?",
+        Cursor cursor = db.rawQuery("select * from UserData where SACardNo = ? and State = ?",
                 new String[]{sacardno, String.valueOf(1)});
         if (cursor != null) {
             if (cursor.moveToNext()) {
@@ -109,7 +121,7 @@ public class AttendanceUserData {
     //查询所有的班级
     public List<Integer> queryClass(int KgId) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select * from AttendanceUser where KgId = ? and State = ?",
+        Cursor cursor = db.rawQuery("select * from UserData where KgId = ? and State = ?",
                 new String[]{String.valueOf(KgId), String.valueOf(1)});
         if (cursor != null) {
             List<Integer> classList = new ArrayList();
@@ -141,7 +153,7 @@ public class AttendanceUserData {
     //查询幼儿
     public List<AttendanceUserBean.RerurnValueBean> queryChildList(int kgid,int ClassInfoID) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select * from AttendanceUser where KgId = ? and ClassInfoID = ? and State = ?",
+        Cursor cursor = db.rawQuery("select * from UserData where KgId = ? and ClassInfoID = ? and State = ?",
                 new String[]{String.valueOf(kgid),String.valueOf(ClassInfoID), String.valueOf(1)});
         List<AttendanceUserBean.RerurnValueBean> list = new ArrayList<>();
         if (cursor != null) {

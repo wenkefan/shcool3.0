@@ -174,4 +174,5 @@ public class Keyword {
     public static final int STATIONJILU = 1300;
 
     public static final int CHILDWORKWORK = 1400;
+    public static String JUANANDJI = "JUANANDJI";
 }

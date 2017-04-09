@@ -274,29 +274,11 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 }
                 break;
             case R.id.select_child:
-                AttendanceUserData attendanceUserData = new AttendanceUserData(this);
-                ClassInfoData classInfoData = new ClassInfoData(this);
-                final List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
-                final String[] clasList = new String[clazList.size()];
-                for (int i = 0; i < clazList.size(); i++) {
-                    String classname = classInfoData.query(SpLogin.getKgId(), (int) clazList.get(i));
-                    clasList[i] = classname;
+                if (sp.getBoolean(Keyword.JUANANDJI)){
+                    selectYuan();
+                } else {
+                    selectClass();
                 }
-                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setTitle("请选择班级");
-                dialog.setIcon(R.mipmap.classicon);
-                dialog.setItems(clasList, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(ChildShangXiaActivity.this, SelectClasChildActivity.class);
-                        intent.putExtra("selectclassid", (int) clazList.get(which));
-                        intent.putExtra("selectclassname", clasList[which]);
-                        intent.putExtra("stationid", stationBean.getStationId());
-                        startActivity(intent);
-                    }
-                });
-                dialog.create();
-                dialog.show();
                 break;
             case R.id.btn_queding:
                 List<Integer> itme = new ArrayList<>();
@@ -348,6 +330,74 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 }
                 break;
         }
+    }
+    //选择幼儿园
+    private void selectYuan(){
+        final int[] clazList = {47,33};
+        final String[] clasList = {"乐康岳阳幼儿园","航天幼儿园"};
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("请选择幼儿园");
+        dialog.setIcon(R.mipmap.classicon);
+        dialog.setItems(clasList, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectClass(clazList[which]);
+            }
+        });
+        dialog.create();
+        dialog.show();
+    }
+    //集团园时选择班级
+    private void selectClass(int kgid) {
+        AttendanceUserData attendanceUserData = new AttendanceUserData(this);
+        ClassInfoData classInfoData = new ClassInfoData(this);
+        final List clazList = attendanceUserData.queryClass(kgid);
+        final String[] clasList = new String[clazList.size()];
+        for (int i = 0; i < clazList.size(); i++) {
+            String classname = classInfoData.query(kgid, (int) clazList.get(i));
+            clasList[i] = classname;
+        }
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("请选择班级");
+        dialog.setIcon(R.mipmap.classicon);
+        dialog.setItems(clasList, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(ChildShangXiaActivity.this, SelectClasChildActivity.class);
+                intent.putExtra("selectclassid", (int) clazList.get(which));
+                intent.putExtra("selectclassname", clasList[which]);
+                intent.putExtra("stationid", stationBean.getStationId());
+                startActivity(intent);
+            }
+        });
+        dialog.create();
+        dialog.show();
+    }
+    //单园时选择班级
+    private void selectClass() {
+        AttendanceUserData attendanceUserData = new AttendanceUserData(this);
+        ClassInfoData classInfoData = new ClassInfoData(this);
+        final List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
+        final String[] clasList = new String[clazList.size()];
+        for (int i = 0; i < clazList.size(); i++) {
+            String classname = classInfoData.query(SpLogin.getKgId(), (int) clazList.get(i));
+            clasList[i] = classname;
+        }
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("请选择班级");
+        dialog.setIcon(R.mipmap.classicon);
+        dialog.setItems(clasList, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(ChildShangXiaActivity.this, SelectClasChildActivity.class);
+                intent.putExtra("selectclassid", (int) clazList.get(which));
+                intent.putExtra("selectclassname", clasList[which]);
+                intent.putExtra("stationid", stationBean.getStationId());
+                startActivity(intent);
+            }
+        });
+        dialog.create();
+        dialog.show();
     }
 
     //群选之后的下车请求
@@ -581,7 +631,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 LogUtils.d("下车接口-----：" + url);
                 UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(ChildShangXiaActivity.this);
                 upCarNetWork.setNetWorkListener(ChildShangXiaActivity.this);
-                upCarNetWork.setUrl(Keyword.FLAGUPCAR + position, url, UpDownCar.class);
+                upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
                 dialogInterface.dismiss();
             }
         });

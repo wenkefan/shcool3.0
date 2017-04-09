@@ -39,7 +39,7 @@ public class ClassInfoData {
                     int dispayorder = bean.getDispayOrder();
                     String classCardno = bean.getClassCardNo();
                     db.execSQL(
-                            "insert into ClassInfo(ClassInfoID, KgId, ClassName, ClassImg, ClassDes, State, ClassType, DispayOrder, ClassCardNo) values (?,?,?,?,?,?,?,?,?)",
+                            "insert into ClassInfoData(ClassInfoID, KgId, ClassName, ClassImg, ClassDes, State, ClassType, DispayOrder, ClassCardNo) values (?,?,?,?,?,?,?,?,?)",
                             new Object[]{classinfoid, kgid, classname, classImg, classdes, state, classtype, dispayorder, classCardno});
                 }
             }
@@ -54,7 +54,7 @@ public class ClassInfoData {
     public String query(int kgid, int classinfoid){
         LogUtils.d("quer--" + classinfoid);
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select * from ClassInfo where ClassInfoID = ? and KgId = ? and State = ?",
+        Cursor cursor = db.rawQuery("select * from ClassInfoData where ClassInfoID = ? and KgId = ? and State = ?",
                 new String[]{String.valueOf(classinfoid),String.valueOf(kgid), String.valueOf(1)});
         if (cursor != null){
             if (cursor.moveToNext()){
@@ -66,7 +66,8 @@ public class ClassInfoData {
 
     public boolean querAll(int kgid){
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        Cursor cursor = db.rawQuery("select * from ClassInfo",null);
+        Cursor cursor = db.rawQuery("select * from ClassInfoData where KgId = ?",
+                new String[]{String.valueOf(kgid)});
         if (cursor != null){
             if (cursor.getCount() > 0){
                 return true;

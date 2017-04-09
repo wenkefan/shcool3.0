@@ -50,7 +50,7 @@ public class ChankanChild extends BaseRecyclerAdapter {
                 holde.classname.setText("当前车上没有幼儿");
             } else {
                 holde.tv.setText(list.get(position).getChildName());
-                holde.classname.setText(classInfoData.query(SpLogin.getKgId(), list.get(position).getClassId()));
+                holde.classname.setText(classInfoData.query(list.get(position).getKgId(), list.get(position).getClassId()));
             }
         }
         super.onBindViewHolder(holder, position);

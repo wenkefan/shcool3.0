@@ -51,7 +51,7 @@ public class ChakanChild extends BaseRecyclerAdapter {
             } else {
                 holde.no.setVisibility(View.GONE);
                 holde.tv.setText(list.get(position).getChildName());
-                holde.classname.setText(classInfoData.query(SpLogin.getKgId(), list.get(position).getClassId()));
+                holde.classname.setText(classInfoData.query(list.get(position).getKgId(), list.get(position).getClassId()));
             }
         }
         super.onBindViewHolder(holder, position);
