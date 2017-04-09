@@ -277,10 +277,10 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
             case R.id.select_child:
                 AttendanceUserData attendanceUserData = new AttendanceUserData(this);
                 ClassInfoData classInfoData = new ClassInfoData(this);
-                List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
+                final List clazList = attendanceUserData.queryClass(SpLogin.getKgId());
                 final String[] clasList = new String[clazList.size()];
                 for (int i = 0; i < clazList.size(); i++) {
-                    String classname = classInfoData.query(SpLogin.getKgId(),(int)clazList.get(i));
+                    String classname = classInfoData.query(SpLogin.getKgId(), (int) clazList.get(i));
                     clasList[i] = classname;
                 }
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -291,7 +291,8 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                     public void onClick(DialogInterface dialog, int which) {
                         ToastUtil.show("选择了" + clasList[which]);
                         Intent intent = new Intent(ChildShangXiaActivity.this, SelectClasChildActivity.class);
-                        intent.putExtra("selectclass", clasList[which]);
+                        intent.putExtra("selectclassid", (int) clazList.get(which));
+                        intent.putExtra("selectclassname", clasList[which]);
                         intent.putExtra("stationid", stationBean.getStationId());
                         startActivity(intent);
                     }
@@ -417,7 +418,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 finish();
                 break;
             case Keyword.FLAGUPCAR:
-                if (IsSKXZ){
+                if (IsSKXZ) {
                     ToastUtil.show(selectBean.getChildName() + "下车");
                     data.upSelectdateXia(stationBean.getStationId(), 1, 0, ChildId, sp.getInt(Keyword.BusOrderId), 1);
                     adapter2.getDate(getStationList("Xia"));

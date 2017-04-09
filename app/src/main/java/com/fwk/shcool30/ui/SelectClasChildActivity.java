@@ -1,7 +1,10 @@
 package com.fwk.shcool30.ui;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 
 import com.fwk.shcool30.R;
@@ -54,12 +57,36 @@ public class SelectClasChildActivity extends BaseActivity implements NetWorkList
     @Override
     protected void init() {
         sp = new SharedPreferencesUtils();
-        int classinfoid = Integer.valueOf(getIntent().getStringExtra("selectclass"));
+        String classinfoName = getIntent().getStringExtra("selectclassname");
+        int classinfoid = getIntent().getIntExtra("selectclassid",0);
         stationid = getIntent().getIntExtra("stationid",0);
         AttendanceUserData data = new AttendanceUserData(this);
+        UpAndDownRecordData upAndDownRecordData = new UpAndDownRecordData(this);
         list = data.queryChildList(SpLogin.getKgId(),classinfoid);
-        title.setText(classinfoid+"班级");
-        initadapter(list);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                if (upAndDownRecordData.queryShangche(SpLogin.getKgId(),sp.getInt(Keyword.BusOrderId),list.get(i).getUserId())){
+                    list.remove(i);
+                }
+            }
+        }
+        title.setText(classinfoName);
+        if (list == null || list.size() == 0){
+            recyclerView.setVisibility(View.VISIBLE);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle("提示：").setMessage("本班没有幼儿或都已上车。");
+            builder.setPositiveButton("返回", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    SelectClasChildActivity.this.finish();
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.show();
+        } else {
+            initadapter(list);
+        }
     }
 
     private void initadapter(final List<AttendanceUserBean.RerurnValueBean> list) {
