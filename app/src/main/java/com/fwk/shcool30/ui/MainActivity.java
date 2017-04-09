@@ -71,6 +71,7 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
     @Override
     protected void init() {
         sp = new SharedPreferencesUtils();
+        showDialog();
         getBanciUrl();
         //储存基础数据
         getAttendanceUser();
@@ -116,6 +117,7 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
     public void NetWorkSuccess(int Flag) {
         switch (Flag) {
             case Keyword.TEACHERZTSUEE:
+                closeDialog();
                 //获取有发车记录
                 if (getDB()){//这次判断为了从数据库中获取数据
                     MainDialog.Beagin(MainActivity.this, banciList, SelectTeacherZT);
@@ -149,6 +151,7 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
             super.handleMessage(msg);
             switch (msg.what) {
                 case Keyword.FLAGBANCI:
+                    closeDialog();
                     banciList = (List<BanciBean.RerurnValueBean>) sp.queryForSharedToObject(Keyword.SP_BANCI_LIST);
                     if (getDB()) {
                         //查询、加载数据库

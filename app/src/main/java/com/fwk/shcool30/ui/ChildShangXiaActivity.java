@@ -211,7 +211,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                         2);
                 LogUtils.d("下车接口-----：" + url);
                 UpCarNetWork upCarNetWork = UpCarNetWork.newInstance(this);
-                upCarNetWork.onSetSelectListener(this);
+                upCarNetWork.setNetWorkListener(this);
                 upCarNetWork.setUrl(Keyword.FLAGUPCAR, url, UpDownCar.class);
                 return;
             }
@@ -289,7 +289,6 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 dialog.setItems(clasList, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ToastUtil.show("选择了" + clasList[which]);
                         Intent intent = new Intent(ChildShangXiaActivity.this, SelectClasChildActivity.class);
                         intent.putExtra("selectclassid", (int) clazList.get(which));
                         intent.putExtra("selectclassname", clasList[which]);
@@ -305,7 +304,6 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 for (String key : map.keySet()) {
                     if (map.get(key).equals("yes")) {
                         itme.add(Integer.valueOf(key));
-                        LogUtils.d("key--" + key);
                     }
                 }
                 selectChildlist = getCardList();
@@ -409,13 +407,26 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 adapter3.getDate(getCardList());
                 break;
             case Keyword.FLAGFIRSTFACHE:
-                sp.removData();
-                stationCarJiLuData.dele();
-                TeacherZT teacherZT = new TeacherZT(this);
-                teacherZT.dele();
-                StaionActivity.stationActivity.finish();
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
+
+                android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+                builder.setCancelable(false);
+                builder.setTitle("提示：").setMessage("本班次已结束。");
+                builder.setPositiveButton("返回", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        sp.removData();
+                        stationCarJiLuData.dele();
+                        TeacherZT teacherZT = new TeacherZT(ChildShangXiaActivity.this);
+                        teacherZT.dele();
+                        StaionActivity.stationActivity.finish();
+                        startActivity(new Intent(ChildShangXiaActivity.this, MainActivity.class));
+                        finish();
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.show();
+
+
                 break;
             case Keyword.FLAGUPCAR:
                 if (IsSKXZ) {

@@ -129,31 +129,31 @@ public class LoginActivity extends BaseActivity implements OnSucceedListener {
     }
     private ProgressDialog progressDialog;
 
-    private void showDialog(){
-        if (progressDialog == null){
-
-            progressDialog = new ProgressDialog(this);
-
-        }
-
-        progressDialog.setMessage("正在加载中...");
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
-    }
-
-    private void closeDialog(){
-        if (progressDialog != null){
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (progressDialog != null){
-            progressDialog.dismiss();
-            progressDialog = null;
-        }
-    }
+//    private void showDialog(){
+//        if (progressDialog == null){
+//
+//            progressDialog = new ProgressDialog(this);
+//
+//        }
+//
+//        progressDialog.setMessage("正在加载中...");
+//        progressDialog.setCanceledOnTouchOutside(false);
+//        progressDialog.show();
+//    }
+//
+//    private void closeDialog(){
+//        if (progressDialog != null){
+//            progressDialog.dismiss();
+//            progressDialog = null;
+//        }
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        if (progressDialog != null){
+//            progressDialog.dismiss();
+//            progressDialog = null;
+//        }
+//    }
 }

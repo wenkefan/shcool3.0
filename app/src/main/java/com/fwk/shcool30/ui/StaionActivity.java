@@ -19,6 +19,7 @@ import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.BanciBean;
 import com.fwk.shcool30.modue.ChildWorkJiLuBean;
 import com.fwk.shcool30.modue.StationBean;
+import com.fwk.shcool30.modue.StationCarJiLuBean;
 import com.fwk.shcool30.modue.StationFADAOBean;
 import com.fwk.shcool30.modue.StationWorkJiLuBean;
 import com.fwk.shcool30.modue.TeacherZTBean;
@@ -61,6 +62,13 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
 
     @BindView(R.id.title_right_iv)
     ImageView zuofei;
+
+    @BindView(R.id.tv_station_name)
+    TextView stationName;
+    @BindView(R.id.tv_next_name)
+    TextView stationNextName;
+    @BindView(R.id.tv_yjtiem)
+    TextView yjsj;
 
     public static StaionActivity stationActivity = null;
 
@@ -169,6 +177,7 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
             case Keyword.FLAGSTATION:
                 recyclerInit();
                 stationBean = (List<StationBean.RerurnValueBean>) sp.queryForSharedToObject(Keyword.STAIDLIST);
+                setNextName();
                 break;
             case Keyword.FLAGDAOZHAN:
 
@@ -247,6 +256,7 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
         }
         UpAndDownRecordData data = new UpAndDownRecordData(this);
         int number = data.queryCarList(sp.getInt(Keyword.BusOrderId), 1, 0).size();
+        setNextName();
         count.setText("" + number);
     }
 
@@ -261,6 +271,28 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 work.setNetWorkListener(this);
                 MainDialog.ZF(this, work);
                 break;
+        }
+    }
+
+    private void setNextName(){
+        List<StationCarJiLuBean> list = stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId));
+        if (stationBean != null) {
+            if (list == null) {
+                stationName.setText("下一站");
+                stationNextName.setText(stationBean.get(0).getStationName());
+                yjsj.setText(GetDateTime.getYJTime(stationBean.get(0).getDuration()));
+            } else if (list.get(list.size() - 1).getIsDaozhan() == 1 && list.get(list.size() - 1).getIsFache() == 0) {
+                stationName.setText("当前站");
+                stationNextName.setText(stationBean.get(list.size() - 1).getStationName());
+                yjsj.setText("--:--");
+            } else if (list.get(list.size() - 1).getIsFache() == 1) {
+                stationName.setText("下一站");
+                stationNextName.setText(stationBean.get(list.size()).getStationName());
+                yjsj.setText(GetDateTime.getYJTime(stationBean.get(list.size()).getDuration()));
+            }
+        } else {
+            stationBean = (List<StationBean.RerurnValueBean>) sp.queryForSharedToObject(Keyword.STAIDLIST);
+//            setNextName();
         }
     }
 }

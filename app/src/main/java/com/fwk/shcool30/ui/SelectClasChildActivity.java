@@ -67,6 +67,7 @@ public class SelectClasChildActivity extends NFCBaseActivityNo implements NetWor
             for (int i = 0; i < list.size(); i++) {
                 if (upAndDownRecordData.queryShangche(SpLogin.getKgId(),sp.getInt(Keyword.BusOrderId),list.get(i).getUserId())){
                     list.remove(i);
+                    i --;
                 }
             }
         }
@@ -101,6 +102,7 @@ public class SelectClasChildActivity extends NFCBaseActivityNo implements NetWor
     @Override
     public void NetWorkSuccess(int Flag) {
         if (Flag == Keyword.FLAGDOWNCAR) {//上车
+            closeDialog();
             UpAndDownRecordData data = new UpAndDownRecordData(this);
             UpAndDownRecordBean udBean = new UpAndDownRecordBean();
             udBean.setKgId(list.get(positions).getKgId());
@@ -124,6 +126,7 @@ public class SelectClasChildActivity extends NFCBaseActivityNo implements NetWor
     @Override
     public void NetWorkError(int Flag) {
         if (Flag == Keyword.ShangURL){
+            closeDialog();
             UpAndDownRecordData data = new UpAndDownRecordData(this);
             UpAndDownRecordBean udBean = new UpAndDownRecordBean();
             udBean.setKgId(list.get(positions).getKgId());
@@ -146,6 +149,7 @@ public class SelectClasChildActivity extends NFCBaseActivityNo implements NetWor
 
     @Override
     public void OnClickListener(int position) {
+        showDialog();
         this.positions = position;
         UpAndDownRecordData data = new UpAndDownRecordData(SelectClasChildActivity.this);
         if (!data.queryShangche(SpLogin.getKgId(),sp.getInt(Keyword.BusOrderId),list.get(position).getUserId())){
@@ -163,6 +167,7 @@ public class SelectClasChildActivity extends NFCBaseActivityNo implements NetWor
             downCarNetWork.setNetWorkListener(SelectClasChildActivity.this);
             downCarNetWork.setUrl(Keyword.FLAGDOWNCAR, url, UpDownCar.class);
         } else {
+            closeDialog();
             ToastUtil.show(list.get(position).getUserName() + "已经上车");
             finish();
         }

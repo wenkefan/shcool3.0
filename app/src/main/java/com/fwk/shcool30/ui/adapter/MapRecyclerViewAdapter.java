@@ -73,12 +73,20 @@ public class MapRecyclerViewAdapter extends BaseRecyclerAdapter implements View.
             viewHolder.name.setText(list.get(position).getStationName());
             viewHolder.daozhan.setVisibility(View.GONE);
             viewHolder.daozhan.setOnClickListener(this);
+            viewHolder.start.setVisibility(View.VISIBLE);
+            viewHolder.end.setVisibility(View.VISIBLE);
+            viewHolder.sjsj.setVisibility(View.GONE);
+            viewHolder.xiangqing.setVisibility(View.GONE);
+            viewHolder.ring.setImageResource(R.drawable.ring);
+
+
             AnimationSet set = new AnimationSet(true);
             AlphaAnimation animation = new AlphaAnimation(1, 0.2f);
             animation.setRepeatCount(Animation.INFINITE);
             animation.setRepeatMode(Animation.REVERSE);
             animation.setDuration(1000);
             set.addAnimation(animation);
+
             //隐藏上下两个棍子
             if (position == 0) {
                 viewHolder.start.setVisibility(View.GONE);

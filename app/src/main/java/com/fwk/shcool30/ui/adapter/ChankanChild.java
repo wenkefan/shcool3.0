@@ -45,15 +45,20 @@ public class ChankanChild extends BaseRecyclerAdapter {
     public void onBindViewHolder(ClickableViewHolder holder, int position) {
         if (holder instanceof ChaKanHolder){
             ChaKanHolder holde = (ChaKanHolder) holder;
-            holde.tv.setText(list.get(position).getChildName());
-            holde.classname.setText(classInfoData.query(SpLogin.getKgId(),list.get(position).getClassId()));
+            if (list.size() == 0){
+                holde.tv.setVisibility(View.GONE);
+                holde.classname.setText("当前车上没有幼儿");
+            } else {
+                holde.tv.setText(list.get(position).getChildName());
+                holde.classname.setText(classInfoData.query(SpLogin.getKgId(), list.get(position).getClassId()));
+            }
         }
         super.onBindViewHolder(holder, position);
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list.size() == 0 ? 1 : list.size();
     }
 
     public class ChaKanHolder extends ClickableViewHolder{
