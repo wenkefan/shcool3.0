@@ -8,7 +8,7 @@ public class HTTPURL {
 //    private static final String API = "http://192.168.1.116:8083/";
 //    private static final String API = "http://192.168.1.168:8081/";
     private static final String API_URL = API + "WebServices/MobileAttendanceService.ashx?";
-    private static final String API_JC = API + "/WebServices/MedicalRecordsService.ashx?";
+    private static final String API_JC = API + "WebServices/MedicalRecordsService.ashx?";
     private static String ceshi_URL = API + "WebServices/MobileAttendanceService.ashx?";
     /**
      * 获取基础信息（线路列表、巴士列表、司机列表）

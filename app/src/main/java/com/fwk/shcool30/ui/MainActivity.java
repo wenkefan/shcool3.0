@@ -179,7 +179,7 @@ public class MainActivity extends NFCBaseActivityNo implements NetWorkListener, 
                     teacherBean.setDriverId(banciBean.getDriverId());
                     teacherZT.addRecord(teacherBean);
 
-
+                    sp.saveToShared(Keyword.SELECTBANCI,banciBean);
                     Intent intent = new Intent(MainActivity.this,StaionActivity.class);
                     intent.putExtra(Keyword.IntentBanCi0,banciBean);
                     startActivity(intent);

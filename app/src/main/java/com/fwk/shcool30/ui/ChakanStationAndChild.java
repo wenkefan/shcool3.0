@@ -45,18 +45,20 @@ public class ChakanStationAndChild extends NFCBaseActivityNo {
         StationCarJiLuData stationCarJiLuData = new StationCarJiLuData(this);
         List<StationCarJiLuBean> list = stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId));
         List<ChakanStation> chakanStationList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++){
-            if (list.get(i).getIsDaozhan() == 1){
-                ChakanStation chakanStation = new ChakanStation();
-                chakanStation.setStationid(list.get(i).getStationId());
-                chakanStation.setStationName(list.get(i).getStationName() + "--上车");
-                chakanStation.setShangXia(1);
-                chakanStationList.add(chakanStation);
-                ChakanStation chakanStation1 = new ChakanStation();
-                chakanStation1.setStationid(list.get(i).getStationId());
-                chakanStation1.setStationName(list.get(i).getStationName() + "--下车");
-                chakanStation1.setShangXia(2);
-                chakanStationList.add(chakanStation1);
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getIsDaozhan() == 1) {
+                    ChakanStation chakanStation = new ChakanStation();
+                    chakanStation.setStationid(list.get(i).getStationId());
+                    chakanStation.setStationName(list.get(i).getStationName() + "--上车");
+                    chakanStation.setShangXia(1);
+                    chakanStationList.add(chakanStation);
+                    ChakanStation chakanStation1 = new ChakanStation();
+                    chakanStation1.setStationid(list.get(i).getStationId());
+                    chakanStation1.setStationName(list.get(i).getStationName() + "--下车");
+                    chakanStation1.setShangXia(2);
+                    chakanStationList.add(chakanStation1);
+                }
             }
         }
 

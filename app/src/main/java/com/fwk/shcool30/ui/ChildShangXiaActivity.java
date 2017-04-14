@@ -20,6 +20,7 @@ import com.fwk.shcool30.db.date.UpAndDownRecordData;
 import com.fwk.shcool30.listener.FacheListener;
 import com.fwk.shcool30.listener.NetWorkListener;
 import com.fwk.shcool30.modue.AttendanceUserBean;
+import com.fwk.shcool30.modue.BanciBean;
 import com.fwk.shcool30.modue.FristFaChe;
 import com.fwk.shcool30.modue.StationBean;
 import com.fwk.shcool30.modue.StationFADAOBean;
@@ -333,15 +334,43 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
     }
     //选择幼儿园
     private void selectYuan(){
-        final int[] clazList = {47,33};
-        final String[] clasList = {"乐康岳阳幼儿园","航天幼儿园"};
+        BanciBean.RerurnValueBean bean = (BanciBean.RerurnValueBean) sp.queryForSharedToObject(Keyword.SELECTBANCI);
+        List<BanciBean.RerurnValueBean.BusScheduleKindergartenListBean> listBeen = bean.getBusScheduleKindergartenList();
+        final List<Integer> organizId = new ArrayList<>();
+        final List<String> organName = new ArrayList<>();
+//        int organid = 0;
+        for (int i = 0; i < listBeen.size(); i++){
+            if (i == 0){
+                organizId.add(listBeen.get(0).getOrganizationId());
+//                organid = listBeen.get(0).getOrganizationId();
+                organName.add(listBeen.get(0).getOrganizationName());
+
+            } else {
+                boolean isadd = false;
+                for (int j = 0; j < organizId.size(); j++){
+                    if (organizId.get(j) == listBeen.get(i).getOrganizationId()){
+                        isadd = true;
+                    }
+                }
+                if (!isadd){
+                    organizId.add(listBeen.get(i).getOrganizationId());
+//                    organid = listBeen.get(i).getOrganizationId();
+                    organName.add(listBeen.get(i).getOrganizationName());
+                }
+            }
+
+        }
+        final String[] organNames = new String[organName.size()];
+        for (int i = 0; i < organName.size(); i++){
+            organNames[i] = organName.get(i);
+        }
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("请选择幼儿园");
         dialog.setIcon(R.mipmap.classicon);
-        dialog.setItems(clasList, new DialogInterface.OnClickListener() {
+        dialog.setItems(organNames, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                selectClass(clazList[which]);
+                selectClass(organizId.get(which));
             }
         });
         dialog.create();
@@ -435,7 +464,7 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 break;
             case Keyword.FLAGDOWNCAR://上车
                 AttendanceUserBean.RerurnValueBean bean;
-                AttendanceUserData attendanceUserData = new AttendanceUserData(this);
+                final AttendanceUserData attendanceUserData = new AttendanceUserData(this);
                 UpAndDownRecordBean udBean = new UpAndDownRecordBean();
                 bean = attendanceUserData.queryChild(CarId);
                 udBean.setKgId(bean.getKgId());
@@ -463,6 +492,8 @@ public class ChildShangXiaActivity extends NFCBaseActivity implements NetWorkLis
                 builder.setPositiveButton("返回", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        AttendanceUserData attendanceUserData1 = new AttendanceUserData(ChildShangXiaActivity.this);
+                        attendanceUserData1.dele();
                         sp.removData();
                         stationCarJiLuData.dele();
                         TeacherZT teacherZT = new TeacherZT(ChildShangXiaActivity.this);

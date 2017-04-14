@@ -179,4 +179,10 @@ public class AttendanceUserData {
         }
         return null;
     }
+
+    public void dele() {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        db.execSQL("delete  from UserData");
+        db.close();
+    }
 }

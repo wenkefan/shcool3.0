@@ -77,6 +77,8 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
     TextView yjsj;
     @BindView(R.id.title_tv)
     TextView title;
+    @BindView(R.id.tv_yjsj_title)
+    TextView yjsjtitle;
 
     public static StaionActivity stationActivity = null;
 
@@ -113,12 +115,15 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
         try {
             title.setText(banciBean.getBusScheduleName());
             sp.setString(Keyword.STATIONNAEM, banciBean.getBusScheduleName());
+            if (banciBean != null && banciBean.getBusScheduleKindergartenList().size() > 1) {
+                sp.setboolean(Keyword.JUANANDJI, true);
+                for (int i = 0; i < banciBean.getBusScheduleKindergartenList().size(); i++) {
+                    getAttendanceUser(banciBean.getBusScheduleKindergartenList().get(i).getOrganizationId());
+                }
+            }
+
         } catch (Exception e) {
             title.setText(sp.getString(Keyword.STATIONNAEM));
-        }
-        if (banciBean != null && banciBean.getBusScheduleId() == 131) {
-            sp.setboolean(Keyword.JUANANDJI, true);
-            getAttendanceUser(33);
         }
         //请求线路
         stationBean = (List<StationBean.RerurnValueBean>) sp.queryForSharedToObject(Keyword.STAIDLIST);
@@ -198,7 +203,6 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 setNextName();
                 break;
             case Keyword.FLAGDAOZHAN:
-
                 stationCarJiLuData.add(sp.getInt(Keyword.BusOrderId), bean, GetDateTime.getH() + ":" + GetDateTime.getM(), 1);
                 adapter.getList(stationCarJiLuData.queryJiLu(sp.getInt(Keyword.BusOrderId)));
                 Intent intent = new Intent(StaionActivity.this, ChildShangXiaActivity.class);
@@ -206,6 +210,8 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
                 startActivity(intent);
                 break;
             case Keyword.ZUOFEI://作废成功
+                AttendanceUserData attData = new AttendanceUserData(this);
+                attData.dele();
                 sp.removData();
                 stationCarJiLuData.dele();
                 TeacherZT teacherZT = new TeacherZT(this);
@@ -298,11 +304,13 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
             if (list == null) {
                 stationName.setText("下一站");
                 stationNextName.setText(stationBean.get(0).getStationName());
+                yjsjtitle.setText("预计时间");
                 yjsj.setText(GetDateTime.getYJTime(stationBean.get(0).getDuration()));
             } else if (list.get(list.size() - 1).getIsDaozhan() == 1 && list.get(list.size() - 1).getIsFache() == 0) {
                 stationName.setText("当前站");
                 stationNextName.setText(stationBean.get(list.size() - 1).getStationName());
-                yjsj.setText("--:--");
+                yjsjtitle.setText("实际时间");
+                yjsj.setText(list.get(list.size() - 1).getDatatime() + "");
             } else if (list.get(list.size() - 1).getIsFache() == 1) {
                 stationName.setText("下一站");
                 stationNextName.setText(stationBean.get(list.size()).getStationName());
@@ -310,14 +318,13 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
             }
         } else {
             stationBean = (List<StationBean.RerurnValueBean>) sp.queryForSharedToObject(Keyword.STAIDLIST);
-//            setNextName();
         }
     }
 
     //获得基础用户数据表
     public void getAttendanceUser(int kgid) {
         AttendanceUserData attData = new AttendanceUserData(this);
-        if (!attData.queryKgidCound(33)) {
+        if (!attData.queryKgidCound(kgid)) {
             String url = String.format(HTTPURL.youerbiao, kgid, "2000-01-01");
             LogUtils.d("用户表URL--" + url);
             AttendanceUserWork attuser = AttendanceUserWork.newInstance(this);
@@ -326,7 +333,7 @@ public class StaionActivity extends NFCBaseActivityNo implements NetWorkListener
         }
         ClassInfoData classdata = new ClassInfoData(this);
         if (!classdata.querAll(kgid)) {
-            String classinfo = HTTPURL.ClassInfo + 33;
+            String classinfo = HTTPURL.ClassInfo + kgid;
             LogUtils.d("班级URLclass---:" + classinfo);
             ClassInfoWork classInfoWork = ClassInfoWork.newInstance(this);
             classInfoWork.setUrl(123456, classinfo, ClassMessage.class);
